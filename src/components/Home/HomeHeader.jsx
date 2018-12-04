@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from "react-router-dom";
-import logo from "./../../assets/logo.png";
+import logo from "./../../assets/images/logo.png";
 import MenuIcon from '@material-ui/icons/Menu';
 import { Typography, Button, Drawer, List, ListItemText, ListItem, Hidden, IconButton } from "@material-ui/core";
 import withStyles from "@material-ui/core/styles/withStyles";
@@ -35,6 +35,7 @@ class HomeHeader extends React.Component {
         )
         return (
             <div className={classes.root}>
+                
                 <Drawer open={this.state.openLeft} onClose={this.toggleDrawer}>
                     <div
                         role="button"
@@ -74,7 +75,7 @@ class HomeHeader extends React.Component {
                     <div style={{ marginTop: 11, marginLeft: 5, display: 'inline', float: 'left' }}>
                         <Typography style={{ fontFamily: 'roboto medium', fontSize: 23 }}>
                             BikeGrab
-                    </Typography>
+                        </Typography>
                     </div>
                 </Link>
                 <IconButton
@@ -92,7 +93,9 @@ class HomeHeader extends React.Component {
 
 const styles =  theme => ({
     root: {
-
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'center',
     },
     Buttons: {
         textTransform: 'inherit',

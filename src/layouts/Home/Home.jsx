@@ -7,7 +7,7 @@ import CustomerView from './../../views/Customer/customer';
 import DriverView from './../../views/Driver/driver';
 import PersonnelView from './../../views/Personnel/personnel';
 import withStyles from "@material-ui/core/styles/withStyles";
-
+import Footer from "./../../components/Home/Footer";
 const switchRouter = (
 	<Switch>
 		<Route path="/home" component={HomeView} />
@@ -28,6 +28,7 @@ class Home extends React.Component {
 				<div className={classes.content}>
 					{switchRouter}
 				</div>
+				<Footer/>
 			</div>
 		)
 	}
@@ -39,9 +40,9 @@ const styles  ={
 		marginRight: 'auto',
 	},
 	content: {
-		padding: "30px 0px",
+		padding: "10px 0px",
 		minHeight: "calc(100vh - 123px)",
-		marginTop: 30,
+		marginTop: 10,
 	},
 };
 export default withStyles(styles)(Home);
