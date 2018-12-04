@@ -58,15 +58,7 @@ class HomeHeader extends React.Component {
                 <Link to="/customer" style={{ textDecoration: 'none' }}>
                     <Button size="large" className={classes.Buttons}>Khách hàng</Button>
                 </Link>
-                <Link to="/personnel" style={{ textDecoration: 'none' }}>
-                    <Button size="large" className={classes.Buttons}>Nhân viên</Button>
-                </Link>
-                <Link to="/admin" style={{ textDecoration: 'none' }}>
-                    <Button size="large" className={classes.Buttons}>Quản lý</Button>
-                </Link>
-                <Link to="/driver" style={{ textDecoration: 'none' }}>
-                    <Button size="large" className={classes.Buttons}>Tài xế</Button>
-                </Link>
+                
 
                 </Hidden>
                 <div className={classes.navIconHide}>
