@@ -24,7 +24,8 @@ class Home extends React.Component {
 					<div style={{flexDirection: 'column'}}>
 					<img src={av1} alt="av1" className={classes.av} />
 					<Typography style={{ textAlign: 'center', fontFamily: 'roboto medium', marginBottom: 50, marginTop: 20 }} variant="h6" gutterBottom>
-						Hỗ trợ
+						
+						 Hỗ trợ
 						<br/>
 						<StarIcon/>
 						<StarIcon/>
@@ -43,6 +44,7 @@ class Home extends React.Component {
 						<StarIcon/>
 					</Typography>
 					</div>
+					 
 				</Grid>
 				<Grid item xs={12} sm={12} md={4} className={classes.root}>
 				<div style={{flexDirection: 'column'}}>
