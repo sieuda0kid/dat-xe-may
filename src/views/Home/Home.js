@@ -6,8 +6,14 @@ import TopHomeView from './../../assets/images/TopHomeView.png';
 import av1 from './../../assets/images/av1.png';
 import av2 from './../../assets/images/av2.png';
 import av3 from './../../assets/images/av3.png';
-
+import {loginApi} from "./../../api/AppApi";
 class Home extends React.Component {
+
+	onLoginClick = () => {
+        loginApi("abc", "abc","1").then(res => console.log(res))
+    }
+
+
 	render() {
 		const { classes } = this.props
 		return (
@@ -39,7 +45,9 @@ class Home extends React.Component {
 							<option value={20}>Tài xế</option>
 							<option value={30}>Quản lý</option>
 						</NativeSelect>
-						<Button variant="contained" color="primary" className={classes.button}>
+						<Button variant="contained" color="primary" className={classes.button}
+						onClick={() => this.onLoginClick()}
+						>
 							Đăng nhập
       					</Button>
 					</div>
