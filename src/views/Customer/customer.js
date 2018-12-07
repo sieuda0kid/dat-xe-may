@@ -16,10 +16,11 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
+import Button from '@material-ui/core/Button';
 
 
 
-class PrimarySearchAppBar extends React.Component {
+class Customer extends React.Component {
   state = {
     anchorEl: null,
     mobileMoreAnchorEl: null,
@@ -95,6 +96,8 @@ class PrimarySearchAppBar extends React.Component {
                 }}
               />
             </div>
+           
+
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
               
@@ -114,7 +117,10 @@ class PrimarySearchAppBar extends React.Component {
                 }}
               />
             </div>
-              
+           
+            <Button variant="contained">
+                Đặt Xe
+            </Button>
             </div>
             <div className={classes.sectionMobile}>
               <IconButton aria-haspopup="true" onClick={this.handleMobileMenuOpen} color="inherit">
@@ -130,7 +136,7 @@ class PrimarySearchAppBar extends React.Component {
   }
 }
 
-PrimarySearchAppBar.propTypes = {
+Customer.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 const styles = theme => ({
@@ -203,6 +209,6 @@ const styles = theme => ({
     },
   });
 
-export default withStyles(styles)(PrimarySearchAppBar);
+export default withStyles(styles)(Customer);
 
 
