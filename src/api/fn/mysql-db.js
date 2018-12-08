@@ -19,3 +19,24 @@ exports.load = (sql) => {
         });
     });
 }
+exports.write = function(sql) {
+    return new Promise((resolve, reject) => {
+        var connection = mysql.createConnection({
+            host: '127.0.0.1',
+            port: '3306',
+            user: 'root',
+            password: '',
+            database: 'dat_xe'
+        });
+
+        connection.connect();
+
+        connection.query(sql, (error, value) => {
+            if (error)
+                reject(error);
+            else resolve(value);
+
+            connection.end();
+        });
+    });
+}

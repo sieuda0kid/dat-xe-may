@@ -11,8 +11,14 @@ import { fade } from '@material-ui/core/styles/colorManipulator';
 import { withStyles } from '@material-ui/core/styles';
 import SearchIcon from '@material-ui/icons/Search';
 import MoreIcon from '@material-ui/icons/MoreVert';
+import Button from '@material-ui/core/Button';
+import Icon from '@material-ui/core/Icon';
 
 class PrimarySearchAppBar extends React.Component {
+
+
+
+class Customer extends React.Component {
   state = {
     anchorEl: null,
     mobileMoreAnchorEl: null,
@@ -79,6 +85,7 @@ class PrimarySearchAppBar extends React.Component {
             <div className={classes.search}>
               <div className={classes.searchIcon}>
                 <SearchIcon />
+          
               </div>
               <InputBase
                 placeholder="Search…"
@@ -88,6 +95,8 @@ class PrimarySearchAppBar extends React.Component {
                 }}
               />
             </div>
+           
+
             <div className={classes.grow} />
             <div className={classes.sectionDesktop}>
               
@@ -107,7 +116,11 @@ class PrimarySearchAppBar extends React.Component {
                 }}
               />
             </div>
-              
+           
+            <Button variant="contained"  className={classes.button}>
+                Đặt Xe
+                <Icon className={classes.rightIcon}>send</Icon>
+            </Button>
             </div>
             <div className={classes.sectionMobile}>
               <IconButton aria-haspopup="true" onClick={this.handleMobileMenuOpen} color="inherit">
@@ -123,7 +136,7 @@ class PrimarySearchAppBar extends React.Component {
   }
 }
 
-PrimarySearchAppBar.propTypes = {
+Customer.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 const styles = theme => ({
@@ -196,6 +209,6 @@ const styles = theme => ({
     },
   });
 
-export default withStyles(styles)(PrimarySearchAppBar);
+export default withStyles(styles)(Customer);
 
 
