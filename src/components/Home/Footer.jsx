@@ -46,7 +46,7 @@ function Footer({ ...props }) {
             </Grid>
             </Grid>
         <div className={classes.footerCopyright}>
-            <p>&copy; {(new Date().getFullYear())} Nhóm 10 All Rights Reserved</p>
+            <p>&copy; {(new Date().getFullYear())} STORM All Rights Reserved</p>
         </div>
     </div>
     </footer>
