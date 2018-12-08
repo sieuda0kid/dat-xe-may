@@ -17,6 +17,7 @@ import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
+import Icon from '@material-ui/core/Icon';
 
 
 
@@ -87,6 +88,7 @@ class Customer extends React.Component {
             <div className={classes.search}>
               <div className={classes.searchIcon}>
                 <SearchIcon />
+          
               </div>
               <InputBase
                 placeholder="Search…"
@@ -118,8 +120,9 @@ class Customer extends React.Component {
               />
             </div>
            
-            <Button variant="contained">
+            <Button variant="contained"  className={classes.button}>
                 Đặt Xe
+                <Icon className={classes.rightIcon}>send</Icon>
             </Button>
             </div>
             <div className={classes.sectionMobile}>
