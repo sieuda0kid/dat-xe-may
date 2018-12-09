@@ -79,15 +79,15 @@ io.on('connection', function (socket) {
     });
 
 })
-// exports.guidata=(data,id)=>{
-// 	 console.log(data);
-// 	// console.log("id="+id);
-// 	// console.log("arr length ="+arr.length);
+exports.guidata=(data,id)=>{
+	 console.log(data);
+	// console.log("id="+id);
+	// console.log("arr length ="+arr.length);
 
-// 	arr.map(socket=>{
-// 		if(socket.user.id === id && socket.re_status["dang_ky_nhan_token"] === 1)
-// 		{
-//        	    socket.emit("token",data);
-// 		}
-// 	});
-//     }
+	arr.map(socket=>{
+		if(socket.user.id === id && socket.re_status["dang_ky_nhan_token"] === 1)
+		{
+       	    socket.emit("token",data);
+		}
+	});
+    }
