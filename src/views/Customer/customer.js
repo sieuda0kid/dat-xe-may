@@ -13,7 +13,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
 import NavigationIcon from '@material-ui/icons/Navigation';
-
+import GoogleMap from "./../../components/MapContainer";
 
 class Customer extends React.Component {
   state = {
@@ -126,6 +126,7 @@ class Customer extends React.Component {
             </div>
           </Toolbar>
         </AppBar>
+        <GoogleMap></GoogleMap>
         {renderMenu}
         {renderMobileMenu}
       </div>
