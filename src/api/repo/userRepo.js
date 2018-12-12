@@ -15,6 +15,12 @@ exports.loadOne = function(id) {
 }
 
 
+exports.loadOnebyType = function(type) {
+	
+	var sql = `select * from staff where isDelete = 0 and userType = ${type}`;
+	return db.load(sql);
+}
+
 exports.getUserByRefreshToken = function(reToken) {
 	var sql = `select * from staff st ,token tk where tk.refresh_token = '${reToken}' and st.id=tk.id_user`;
 	console.log(sql);
@@ -24,7 +30,8 @@ exports.getUserByRefreshToken = function(reToken) {
 
 exports.login = (u) => {
     var sql = `select * from account where username = '${u.username}' and password = '${u.password}' and type = '${u.type}'`;
-    return db.load(sql);
+	console.log(sql);
+	return db.load(sql);
 }
 
 

@@ -13,6 +13,9 @@ import SearchIcon from '@material-ui/icons/Search';
 import MoreIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
+import NavigationIcon from '@material-ui/icons/Navigation';
+import GoogleMap from "./../../components/MapContainer";
+
 
 class Customer extends React.Component {
   state = {
@@ -115,7 +118,7 @@ class Customer extends React.Component {
            
             <Button variant="contained"  className={classes.button}>
                 Đặt Xe
-                <Icon className={classes.rightIcon}>send</Icon>
+                <NavigationIcon className={classes.extendedIcon} />
             </Button>
             </div>
             <div className={classes.sectionMobile}>
@@ -125,6 +128,7 @@ class Customer extends React.Component {
             </div>
           </Toolbar>
         </AppBar>
+        <GoogleMap></GoogleMap>
         {renderMenu}
         {renderMobileMenu}
       </div>
