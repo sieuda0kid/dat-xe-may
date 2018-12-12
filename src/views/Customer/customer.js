@@ -14,10 +14,6 @@ import MoreIcon from '@material-ui/icons/MoreVert';
 import Button from '@material-ui/core/Button';
 import Icon from '@material-ui/core/Icon';
 
-class PrimarySearchAppBar extends React.Component {
-
-
-
 class Customer extends React.Component {
   state = {
     anchorEl: null,
