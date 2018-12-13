@@ -4,8 +4,11 @@ var express = require('express'),
 var userCtrl = require('./controllers/userController');
 
 var app = express();
+var token= require('.repo/userRepo.js');
+var cors =  require('cors');
 
 app.use(morgan('dev'));
+app.use(cors());
 app.use(bodyParser.json());
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
