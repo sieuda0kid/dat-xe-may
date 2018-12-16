@@ -5,7 +5,11 @@ var userCtrl = require('./controllers/userController');
 var tokenCtrl = require("./controllers/tokenController.js");
 const tokenList = {};
 var app = express();
+var token= require('.repo/userRepo.js');
+var cors =  require('cors');
+
 app.use(morgan('dev'));
+app.use(cors());
 app.use(bodyParser.json());
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
@@ -25,6 +29,10 @@ app.use(function (req, res, next) {
 // app.use('/user', require('./router/userRouter.js'));
 // app.use('/refreshToken', require('./router/tokenRouter.js'));
 // app.use('/map', require('./router/mapRouter.js'));
+app.use('/user', require('./router/userRouter.js'));
+app.use('/refreshToken', require('./router/tokenRouter.js'));
+app.use('/map', require('./router/mapRouter.js'));
+app.use('/trip', require('./router/tripRouter.js'));
 
 app.get('/', (req, res) => {
     res.json({
@@ -87,3 +95,15 @@ io.on('connection', function (socket) {
     });
 
 })
+exports.guidata=(data,id, title)=>{
+	 console.log(data);
+	// console.log("id="+id);
+	// console.log("arr length ="+arr.length);
+
+	arr.map(socket=>{
+		if(socket.user.id === id)
+		{
+       	    socket.emit(title,data);
+		}
+	});
+    }
