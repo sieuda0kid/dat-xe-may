@@ -1,10 +1,10 @@
-var token = require('../controllers/token.js');
-express = require('express');
+// var token = require('../controllers/tokenController.js');
+// express = require('express');
 
 
-var router = express.Router();
+// var router = express.Router();
 
-router.route('/delete')
-    .get(token.deleteToken)
+// router.route('/delete')
+//     .get(token.deleteToken)
 
-module.exports = router;
+// module.exports = router;

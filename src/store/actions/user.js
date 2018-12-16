@@ -1,8 +1,8 @@
 import { SAVE_PROFILE } from './actionType';
-
 import { loginApi }
     from '../../api/AppApi';
-
+// import decode from 'jwt-decode';
+import jwt from 'jsonwebtoken';
 export const saveProfile = (profile) => {
     return {
         type: SAVE_PROFILE,
@@ -13,26 +13,45 @@ export const saveProfile = (profile) => {
 export const login = (username, password, type) => {
     return (dispatch) => {
         const promise = new Promise((resolve, reject) => {
-            console.log('login_action: ' + username + " " + password + " " + type);
             loginApi(username, password, type)
                 .then((responseJson) => {
-                    var token = responsJson.token;
-                    sessionStorage.setItem('token', token);
-                    var user = responseJson.user;
-                    var u = {
-                        username: user.username,
-                        password: user.password,
-                        type: user.type,
-                        status: user.status,
-                        location: user.location,
+                    if (responseJson.returnCode === 1) {
+                        var access_token = responseJson.user.access_token;
+                        var refresh_token = responseJson.user.refresh_token;
+                        localStorage.setItem('access_token', access_token);
+                        localStorage.setItem('refresh_token', refresh_token);
+                        var user = responseJson.user;
+                        dispatch(saveProfile(user));
                     }
-                    if (responseJson.returnCode == 1) {
-                        dispatch(saveProfile(u));
-                        resolve(responseJson);
-                    }
-                }).catch((error) => {
+                    resolve(responseJson);
+                })
+                .catch((error) => {
                     console.log(error);
                 });
+        })
+        return promise;
+    };
+}
+
+export const checkToken = (access_token) => {
+    return (dispatch) => {
+        const promise = new Promise((resolve, reject) => {
+            // const { exp } = decode(access_token);
+            // let date = Date.now() / 1000;
+            // console.log('exp ' + exp);
+            // console.log('date ' + date);
+            var res = {
+                returnCode: '',
+            };
+            jwt.verify(access_token, 'token', function (err, user) {
+                if (err) {
+                    if (err.message === 'jwt expired')
+                        res.returnCode = 1;
+                } else {
+                    res.returnCode = 2;
+                }
+            })
+            resolve(res);
         })
         return promise;
     };

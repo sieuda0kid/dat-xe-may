@@ -2,9 +2,9 @@ var express = require('express'),
     morgan = require('morgan'),
     bodyParser = require('body-parser');
 var userCtrl = require('./controllers/userController');
-
+var tokenCtrl = require("./controllers/tokenController.js");
+const tokenList = {};
 var app = express();
-
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 app.use(function (req, res, next) {
@@ -22,9 +22,9 @@ app.use(function (req, res, next) {
 });
 
 // thiet lap cho router
-app.use('/user', require('./router/userRouter.js'));
-app.use('/refreshToken', require('./router/tokenRouter.js'));
-app.use('/map', require('./router/mapRouter.js'));
+// app.use('/user', require('./router/userRouter.js'));
+// app.use('/refreshToken', require('./router/tokenRouter.js'));
+// app.use('/map', require('./router/mapRouter.js'));
 
 app.get('/', (req, res) => {
     res.json({
@@ -32,62 +32,58 @@ app.get('/', (req, res) => {
     });
 })
 
-app.use('/user', userCtrl);
+app.use('/user', require("./router/userRouter.js"));
 
 var port = process.env.port || 8888;
-app.listen(port, () => {
+var server = app.listen(port, () => {
     console.log(`api running on port ${port}`);
 })
 
 
 // socket
-var arr=[];
+var array_socket = [];
+var arr = [];
 var io = require('socket.io').listen(server);
 io.on('connection', function (socket) {
-    socket.user={id:0};
     arr.push(socket);
-    socket.re_status=[{key:0}];
-    console.log('a user connected id= '+socket.id);
+    socket.on("cnt", (data) => {
+        console.log("connect");
+        if (data) {
+            let info = {
+                username: data.username,
+                password: data.password,
+                type: data.type,
+                socket: socket,
+            }
+            array_socket.push(info);
+        }
+    })
 
-    socket.on('disconnect', function(){
-        console.log('user disconnected');
-        arr.splice(arr.indexOf(socket.id),1);
+    socket.on("sendUserProfile", (data) => {
+        console.log("send User Profile");
+        if (data.refresh_token && data.refresh_token in tokenList == false)
+            tokenList[data.refresh_token] = data;
+    });
 
+    socket.on('CreateNewToken', (data) => {
+        console.log('create new token');
+        var user = {
+            username: tokenList[data].username,
+            password: tokenList[data].password,
+        }
+        if (data && data in tokenList) {
+            var access_token = tokenCtrl.generateToken(user);
+            tokenList[data].access_token = access_token;
+            socket.emit("CreateLocalStorage", access_token);
+        }
     });
-    socket.on("gui_data",function(data){
-        console.log(data);
-    });
-    socket.on("send_refresh_token",function(data){
-        console.log(data);
-        if(data===null || data.length===0)
-        {
-               console.log("không nhan dc send_refresh_token tu client");
-        }else {
-            token.getUserByRefreshToken(data)
-            .then(rows=>{
-                if(rows.length>0)
-                {
-                    socket.user=rows[0];
-                    //console.log(rows[0]);
-                    socket.re_status.dang_ky_nhan_token=1;
-                }
-            })
-            .catch(error=>{
-                console.log(error);
-            });
-        }   
+
+    socket.on("DeleteToken", (data) => {
+        console.log("DeleteToken");
+        delete tokenList[data];
+    })
+
+    socket.on('disconnect', function () {
     });
 
 })
-exports.guidata=(data,id)=>{
-	 console.log(data);
-	// console.log("id="+id);
-	// console.log("arr length ="+arr.length);
-
-	arr.map(socket=>{
-		if(socket.user.id === id && socket.re_status["dang_ky_nhan_token"] === 1)
-		{
-       	    socket.emit("token",data);
-		}
-	});
-    }

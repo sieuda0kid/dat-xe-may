@@ -6,13 +6,61 @@ import TopHomeView from './../../assets/images/TopHomeView.png';
 import av1 from './../../assets/images/av1.png';
 import av2 from './../../assets/images/av2.png';
 import av3 from './../../assets/images/av3.png';
-import {loginApi} from "./../../api/AppApi";
+import { login } from '../../store/actions/user';
+import { connect } from 'react-redux';
 class Home extends React.Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			username: '',
+			password: '',
+			type: '1',
+		};
+	}
 
-	onLoginClick = () => {
-        loginApi("abc", "abc","1").then(res => console.log(res))
-    }
+	componentWillMount() {
 
+	}
+
+	onValueChange = (event) => {
+		if (event.target.id === "txtUsername") {
+			this.setState({
+				username: event.target.value
+			})
+		}
+		else if (event.target.id === "txtPassword")
+			this.setState({
+				password: event.target.value
+			})
+		else if (event.target.id === "txtType") {
+			this.setState({
+				type: event.target.value
+			})
+		}
+	}
+
+	onLoginClick = (username, password, type) => {
+		this.props.doLogin(username, password, type).then((resJson) => {
+			if (resJson.returnCode === 1) {
+				if (resJson.user.type === "1")
+					this.props.history.push('/personnel');
+				else if (resJson.user.type === "2")
+					this.props.history.push('/driver');
+				else if (resJson.user.type === "3")
+					this.props.history.push('/admin');
+			}
+
+		}).catch((error) => {
+			console.log(error);
+		});
+	}
+
+
+
+	componentDidMount() {
+		if (localStorage.getItem('access_token') !== null)
+			this.props.history.push('/personnel')
+	}
 
 	render() {
 		const { classes } = this.props
@@ -27,26 +75,30 @@ class Home extends React.Component {
 						<Typography className={classes.label2}>
 							Tài khoản
 						</Typography>
-						<input type="text" name="username" placeholder="Nhập tên tài khoản" className={classes.input} />
+						<input type="text" id="txtUsername" name="txtUsername" placeholder="Nhập tên tài khoản" className={classes.input}
+							onChange={this.onValueChange}
+						/>
 						<Typography className={classes.label2}>
 							Mất khẩu
 						</Typography>
-						<input type="password" name="password" placeholder="Nhập mất khẩu" className={classes.input} />
+						<input type="password" id="txtPassword" name="txtPassword" placeholder="Nhập mất khẩu" className={classes.input}
+							onChange={this.onValueChange}
+						/>
 						<Typography className={classes.label2}>
 							Loại tài khoản
 						</Typography>
 						<NativeSelect
-							// value={this.state.age}
-							// onChange={this.handleChange('age')}
-							name="age"
+							onChange={this.onValueChange}
+							name="txtType"
+							id="txtType"
 							className={classes.selectEmpty}
 						>
-							<option value={10}>Nhân viên</option>
-							<option value={20}>Tài xế</option>
-							<option value={30}>Quản lý</option>
+							<option value="1">Nhân viên</option>
+							<option value="2">Tài xế</option>
+							<option value="3">Quản lý</option>
 						</NativeSelect>
 						<Button variant="contained" color="primary" className={classes.button}
-						onClick={() => this.onLoginClick()}
+							onClick={() => this.onLoginClick(this.state.username, this.state.password, this.state.type)}
 						>
 							Đăng nhập
       					</Button>
@@ -126,15 +178,15 @@ const styles = theme => ({
 		},
 	},
 	label2: {
-		marginTop: 10, 
-		fontSize: 20, 
-		marginLeft: 18, 
-		textAlign: 'left', 
-		color: 'black', 
-		fontFamily: 'roboto medium', 
+		marginTop: 10,
+		fontSize: 20,
+		marginLeft: 18,
+		textAlign: 'left',
+		color: 'black',
+		fontFamily: 'roboto medium',
 		marginBottom: 10,
 		[theme.breakpoints.up("md")]: {
-			color:'white',
+			color: 'white',
 		},
 	},
 
@@ -177,4 +229,16 @@ const styles = theme => ({
 		height: '58%',
 	}
 });
-export default withStyles(styles)(Home);
+
+const mapStateToProps = state => {
+	return {
+	};
+};
+
+const mapDispatchToProps = dispatch => {
+	return {
+		doLogin: (username, password, type) => dispatch(login(username, password, type))
+	};
+};
+
+export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(Home));

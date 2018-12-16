@@ -5,7 +5,7 @@ import Home from "./layouts/Home/Home.jsx";
 class App extends Component {
   render() {
     return (
-      <Switch>
+    <Switch>
 		<Route path={"/"} component={Home} />
 		<Redirect to="/" />
 	  </Switch>

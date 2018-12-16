@@ -20,8 +20,11 @@ const switchRouter = (
 );
 
 class Home extends React.Component {
+	state = {
+	  };
+
 	render() {
-		const { classes } = this.props;
+		const { classes} = this.props;
 		return (
 			<div className={classes.wrapper}>
 				<HomeHeader />
@@ -29,6 +32,7 @@ class Home extends React.Component {
 					{switchRouter}
 				</div>
 				<Footer/>
+				
 			</div>
 		)
 	}

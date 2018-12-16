@@ -1,9 +1,11 @@
 import React from 'react';
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 import logo from "./../../assets/images/logo.png";
 import MenuIcon from '@material-ui/icons/Menu';
 import { Typography, Button, Drawer, List, ListItemText, ListItem, Hidden, IconButton } from "@material-ui/core";
 import withStyles from "@material-ui/core/styles/withStyles";
+var io = require("socket.io-client");
+const socket = io("http://localhost:8888");
 class HomeHeader extends React.Component {
     constructor(props) {
         super(props);
@@ -18,7 +20,13 @@ class HomeHeader extends React.Component {
           state => ({openLeft: !state.openLeft})
         );
       };
-
+    
+    onExitClick = () => {
+        socket.emit("DeleteToken",localStorage.getItem('refresh_token'));
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        return <Redirect to = "/home"/>
+    }
     render() {
         const { classes } = this.props
 
@@ -30,6 +38,13 @@ class HomeHeader extends React.Component {
                             <ListItemText primary="Khách hàng" />
                         </ListItem>
                     </Link>
+                    {localStorage.getItem('access_token') !== null ? 
+                    <Link to="/home" style={{ textDecoration: 'none' }}>
+                        <ListItem button onClick={this.onExitClick}>
+                            <ListItemText primary="Thoát" />
+                        </ListItem>
+                    </Link>
+                :null}
                 </List>
             </div>
         )
@@ -58,7 +73,14 @@ class HomeHeader extends React.Component {
                 <Link to="/customer" style={{ textDecoration: 'none' }}>
                     <Button size="large" className={classes.Buttons}>Khách hàng</Button>
                 </Link>
-                
+                {localStorage.getItem('access_token') !== null ? 
+                    <Link to="/home" style={{ textDecoration: 'none' }}>
+                        <Button size="large" className={classes.Buttons}
+                        onClick={() => this.onExitClick()}>
+                            Thoát
+                        </Button>
+                    </Link>
+                :null}
 
                 </Hidden>
                 <div className={classes.navIconHide}>

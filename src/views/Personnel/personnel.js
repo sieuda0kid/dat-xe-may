@@ -16,9 +16,10 @@ import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
-
-
-
+import { connect } from "react-redux";
+import {checkToken} from '../../store/actions/user.js';
+var io = require("socket.io-client");
+const socket = io("http://localhost:8888");
 class personnel extends React.Component {
   state = {
     anchorEl: null,
@@ -41,6 +42,47 @@ class personnel extends React.Component {
   handleMobileMenuClose = () => {
     this.setState({ mobileMoreAnchorEl: null });
   };
+
+
+  componentWillMount() {
+    if(this.props.userProfile){
+      var user = {
+        username: this.props.userProfile.username,
+        password: this.props.userProfile.password,
+        type: this.props.userProfile.type,
+        access_token: this.props.userProfile.access_token,
+        refresh_token: this.props.userProfile.refresh_token,
+      }
+      if(JSON.parse(localStorage.getItem('user'))){
+        localStorage.removeItem('user');
+      }
+      localStorage.setItem('user', JSON.stringify(user));
+    }
+    var us = localStorage.getItem('user');
+    socket.emit("cnt",JSON.parse(us));
+    if(JSON.parse(us))
+		  socket.emit("sendUserProfile", JSON.parse(us));
+      socket.on("CreateLocalStorage", (data) => {
+      localStorage.removeItem('access_token');
+      localStorage.setItem('access_token', data);
+    })
+    let access_token = localStorage.getItem('access_token');
+    let refresh_token = localStorage.getItem('refresh_token');
+    if (access_token === null && refresh_token === null)
+      this.props.history.push('/home');
+    else {
+      this.props.doCheckToken(access_token).then((resJson) => {
+        if(resJson.returnCode === 1)
+          socket.emit("CreateNewToken",refresh_token);
+      }).catch((error) => {
+        console.log(error);
+      });
+    }
+  }
+
+  componentDidMount() {
+    
+  }
 
   render() {
     const { anchorEl, mobileMoreAnchorEl } = this.state;
@@ -151,76 +193,89 @@ class personnel extends React.Component {
   }
 }
 const styles = theme => ({
-    root: {
-      width: '100%',
+  root: {
+    width: '100%',
+  },
+  grow: {
+    flexGrow: 1,
+  },
+  menuButton: {
+    marginLeft: -12,
+    marginRight: 20,
+  },
+  title: {
+    display: 'none',
+    [theme.breakpoints.up('sm')]: {
+      display: 'block',
     },
-    grow: {
-      flexGrow: 1,
+  },
+  search: {
+    position: 'relative',
+    borderRadius: theme.shape.borderRadius,
+    backgroundColor: fade(theme.palette.common.white, 0.15),
+    '&:hover': {
+      backgroundColor: fade(theme.palette.common.white, 0.25),
     },
-    menuButton: {
-      marginLeft: -12,
-      marginRight: 20,
+    marginRight: theme.spacing.unit * 2,
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: theme.spacing.unit * 3,
+      width: 'auto',
     },
-    title: {
-      display: 'none',
-      [theme.breakpoints.up('sm')]: {
-        display: 'block',
-      },
+  },
+  searchIcon: {
+    width: theme.spacing.unit * 9,
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputRoot: {
+    color: 'inherit',
+    width: '100%',
+  },
+  inputInput: {
+    paddingTop: theme.spacing.unit,
+    paddingRight: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+    paddingLeft: theme.spacing.unit * 10,
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('md')]: {
+      width: 200,
     },
-    search: {
-      position: 'relative',
-      borderRadius: theme.shape.borderRadius,
-      backgroundColor: fade(theme.palette.common.white, 0.15),
-      '&:hover': {
-        backgroundColor: fade(theme.palette.common.white, 0.25),
-      },
-      marginRight: theme.spacing.unit * 2,
-      marginLeft: 0,
-      width: '100%',
-      [theme.breakpoints.up('sm')]: {
-        marginLeft: theme.spacing.unit * 3,
-        width: 'auto',
-      },
-    },
-    searchIcon: {
-      width: theme.spacing.unit * 9,
-      height: '100%',
-      position: 'absolute',
-      pointerEvents: 'none',
+  },
+  sectionDesktop: {
+    display: 'none',
+    [theme.breakpoints.up('md')]: {
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
     },
-    inputRoot: {
-      color: 'inherit',
-      width: '100%',
-    },
-    inputInput: {
-      paddingTop: theme.spacing.unit,
-      paddingRight: theme.spacing.unit,
-      paddingBottom: theme.spacing.unit,
-      paddingLeft: theme.spacing.unit * 10,
-      transition: theme.transitions.create('width'),
-      width: '100%',
-      [theme.breakpoints.up('md')]: {
-        width: 200,
-      },
-    },
-    sectionDesktop: {
+  },
+  sectionMobile: {
+    display: 'flex',
+    [theme.breakpoints.up('md')]: {
       display: 'none',
-      [theme.breakpoints.up('md')]: {
-        display: 'flex',
-      },
     },
-    sectionMobile: {
-      display: 'flex',
-      [theme.breakpoints.up('md')]: {
-        display: 'none',
-      },
-    },
-  });
+  },
+});
 personnel.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(personnel);
+const mapStateToProps = state => {
+  return {
+      userProfile: state.user.profile,
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    doCheckToken: (access_token) =>
+      dispatch(checkToken(access_token)),
+  }
+}
+
+export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(personnel));
