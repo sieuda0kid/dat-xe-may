@@ -3,28 +3,22 @@ var md5 = require('crypto-js/md5');
 
 
 exports.loadAll = function() {
-	var sql = `select * from staff where isDelete = 0`;
-	return db.load(sql);
+	 
 }
 
 
 exports.loadOne = function(id) {
-	console.log("id load one :"+id);
-	var sql = `select * from staff where isDelete = 0 and id = ${id}`;
-	return db.load(sql);
+	 
 }
 
 
 exports.loadOnebyType = function(type) {
 	
-	var sql = `select * from staff where isDelete = 0 and userType = ${type}`;
-	return db.load(sql);
+	 
 }
 
 exports.getUserByRefreshToken = function(reToken) {
-	var sql = `select * from staff st ,token tk where tk.refresh_token = '${reToken}' and st.id=tk.id_user`;
-	console.log(sql);
-	return db.load(sql);
+ 
 }
 
 
@@ -36,14 +30,7 @@ exports.login = (u) => {
 
 
 exports.loadForType = function(difriend) {
-	if(difriend===0)
-	{
-		var sql = `select * from staff where isDelete = 0 and userType = 4`;
-	    return db.load(sql);
-	}else{
-		var sql = `select * from staff where isDelete = 0 and userType != 4`;
-	    return db.load(sql);
-	}
+ 
 	
 }
 

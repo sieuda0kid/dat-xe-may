@@ -35,9 +35,7 @@ app.use('/map', require('./router/mapRouter.js'));
 app.use('/trip', require('./router/tripRouter.js'));
 
 app.get('/', (req, res) => {
-    res.json({
-        msg: 'hello from nodejs api'
-    });
+    
 })
 
 app.use('/user', require("./router/userRouter.js"));
@@ -68,27 +66,15 @@ io.on('connection', function (socket) {
     })
 
     socket.on("sendUserProfile", (data) => {
-        console.log("send User Profile");
-        if (data.refresh_token && data.refresh_token in tokenList == false)
-            tokenList[data.refresh_token] = data;
+        
     });
 
     socket.on('CreateNewToken', (data) => {
-        console.log('create new token');
-        var user = {
-            username: tokenList[data].username,
-            password: tokenList[data].password,
-        }
-        if (data && data in tokenList) {
-            var access_token = tokenCtrl.generateToken(user);
-            tokenList[data].access_token = access_token;
-            socket.emit("CreateLocalStorage", access_token);
-        }
+         
     });
 
     socket.on("DeleteToken", (data) => {
-        console.log("DeleteToken");
-        delete tokenList[data];
+        
     })
 
     socket.on('disconnect', function () {
@@ -96,14 +82,6 @@ io.on('connection', function (socket) {
 
 })
 exports.guidata=(data,id, title)=>{
-	 console.log(data);
-	// console.log("id="+id);
-	// console.log("arr length ="+arr.length);
-
-	arr.map(socket=>{
-		if(socket.user.id === id)
-		{
-       	    socket.emit(title,data);
-		}
-	});
+	  
+	 
     }
