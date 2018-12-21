@@ -49,10 +49,75 @@ var send_request=function(soket_driver,request,check)
     	}, 10000)
 
     	soket_driver.on("accept_request",function(data){
-           console.log(`driver ${soket_driver.user.username} da chap nhan`);
+           console.log(`driver ${soket_driver.user.username} Da Chap Nhan`);
            clearTimeout(action);
            thoi_han=true
            resolve(thoi_han);
         });
     })
+}
+
+
+
+
+exports.sendRequestForDriver=function(socket,requestLocation,arrDriver){
+    var arrDistance=[];
+    var arrDistance=getListDistance(arrDriver,requestLocation);
+    if(arrDistance.length>0)
+    {
+        var tt=0;
+        var t=0;
+        for (var i=0;i<=arrDistance.length;i++) {
+
+            (function(ind) {
+                var action=setTimeout(function(){
+                    if(t==arrDistance.length)
+                    {
+                        tripRepos.updateTripStatus(requestLocation.id,7).then(data=>{}).catch(err=>{console.log(err)});
+                        tt=1;
+                    }
+                    if(tt==0)
+                    {
+                        if(arrDistance[t].driver_status===1){
+                            send_request(arrDistance[t],requestLocation)
+                        .then(result=>{
+                            console.log("Ket Thuc");
+                            arrDistance.map(e=>{
+                                if(e.user.id===arrDistance[t].user.id){e.driver_status=2;}
+                            })
+                            
+                            tripRepos.updateDriverId(requestLocation.id,arrDistance[t].user.id).then(data=>{}).catch(err=>{console.log(err)});
+                            tripRepos.updateTripStatus(requestLocation.id,6).then(data=>{}).catch(err=>{console.log(err)});
+                            userRepos.updateStausDriver(arrDistance[t].user.id,2).then(data=>{}).catch(err=>{console.log(err)});
+                            tt=1;
+                        })
+                        .catch(err=>{
+                            console.log(err);
+                            console.log("Driver Khong Nhan");
+                            t++;
+                        });
+                        }
+                    }
+                }, ind*11000);
+            })(i);
+        }
+    }
+
+}
+exports.endTrip=function(socket,data,arrDriver){
+   tripRepos.updateTripStatus(data.id,5).then(data=>{}).catch(err=>{console.log(err)});
+   arrDriver.map(e=>{
+       if(e.user.id===socket.user.id){e.driver_status=1;}
+   })
+   userRepos.updateStausDriver(socket.user.id,1).then(data=>{}).catch(err=>{console.log(err)});
+}
+exports.beginTrip=function(socket,data){
+   tripRepos.updateTripStatus(data.id,4).then(data=>{}).catch(err=>{console.log(err)});
+}
+
+
+exports.updateStatusRequestWithDriver=function(socket,requestLocation,arrDriver){
+   var arrDistance=[];
+   var arrDistance=getListDistance(arrDriver,requestLocation);
+   tripRepos.updateStatusRequestWithDriver(data).then(data=>{}).catch(err=>{console.log(err)});
 }
