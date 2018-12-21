@@ -9,6 +9,8 @@ import Typography from '@material-ui/core/Typography';
 //import classNames from 'classnames';
 //import MenuItem from '@material-ui/core/MenuItem';
 import TextField from '@material-ui/core/TextField';
+import Grid from '@material-ui/core/Grid';
+import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
 class ReceiveCustomer extends React.Component {
     render() {
@@ -16,7 +18,11 @@ class ReceiveCustomer extends React.Component {
         return ( <
             div >
             <
-            Card >
+            Grid container justify = "center"
+            alignItems = "center" >
+            <
+            Card style = {
+                { width: '60%' } } >
             <
             CardContent >
             <
@@ -25,7 +31,7 @@ class ReceiveCustomer extends React.Component {
             Thông tin đặt xe của khách <
             /Typography> <
             div style = {
-                { width: '100%', padding: 20 } } >
+                { width: '100%' } } >
             <
             TextField id = "standard-dense"
             label = "Họ tên"
@@ -34,43 +40,52 @@ class ReceiveCustomer extends React.Component {
                 { width: '100%' } }
             /> <
             /div> <
-            div >
+            div style = {
+                { width: '100%' } } >
             <
             TextField id = "standard-dense"
             label = "Số điện thoại"
-            margin = "dense" /
-            >
-            <
+            margin = "dense"
+            style = {
+                { width: '100%' } }
+            /> <
             /div> <
-            div >
+            div style = {
+                { width: '100%' } } >
             <
             TextField id = "standard-dense"
             label = "Địa chỉ đón khách"
-            margin = "dense" /
-            >
-            <
+            margin = "dense"
+            style = {
+                { width: '100%' } }
+            /> <
             /div> <
-            div >
+            div style = {
+                { width: '100%' } } >
             <
             TextField id = "standard-dense"
             label = "Ghi chú"
-            margin = "dense" /
-            >
-            <
+            margin = "dense"
+            multiline rows = "3"
+            style = {
+                { width: '100%' } }
+            /> <
             /div>
-
 
             <
             /CardContent> <
             CardActions >
             <
-            Button size = "small" > Nhận khách < /Button> <
+            Button variant = "contained"
+            color = "primary" >
+            Nhận khách <
+            /Button> <
             /CardActions> <
             /Card> <
+            /Grid> <
             /div>
         )
     }
 }
-
 
 export default ReceiveCustomer;
