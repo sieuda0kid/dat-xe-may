@@ -6,6 +6,7 @@ import AdminView from './../../views/Admin/admin'
 import CustomerView from './../../views/Customer/customer';
 import DriverView from './../../views/Driver/driver';
 import PersonnelView from './../../views/Personnel/personnel';
+import ReceiveCustomerView from './../../views/ReceiveCustomer/ReceiveCustomerView';
 import withStyles from "@material-ui/core/styles/withStyles";
 import Footer from "./../../components/Home/Footer";
 const switchRouter = (
@@ -15,6 +16,7 @@ const switchRouter = (
 		<Route path="/customer" component={CustomerView} />
 		<Route path="/driver" component={DriverView} />
 		<Route path="/personnel" component={PersonnelView} />
+		<Route path="/receivecustomer" component={ReceiveCustomerView} />
 		<Redirect from="/" to="/home" />
 	</Switch>
 );
