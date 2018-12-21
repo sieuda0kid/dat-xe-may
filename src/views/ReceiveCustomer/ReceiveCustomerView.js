@@ -13,6 +13,66 @@ import Grid from '@material-ui/core/Grid';
 import CloudUploadIcon from '@material-ui/icons/CloudUpload';
 
 class ReceiveCustomer extends React.Component {
+
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            HoTen: '',
+            DienThoai: '',
+            DiaChi: '',
+            GhiChu: '',
+
+            msgErrorHoTen: '',
+            msgErrorDienThoai: '',
+            msgErrorHoDiaChi: '',
+
+            dem: 0,
+            dialogAlertMessage: '',
+            showDialog: false,
+        };
+    }
+
+    checkValidation = (HoTen, DienThoai, DiaChi, note) => {
+        var dem = 0;
+        if (HoTen == '') {
+            this.setState({ msgErrorHoTen: 'Nhập họ tên' })
+            dem++;
+        } else {
+            this.setState({ msgErrorHoTen: '' })
+        }
+
+        if (DienThoai == '') {
+            this.setState({ msgErrorDienThoai: 'Nhập số điện thoại' })
+            dem++;
+        } else {
+            this.setState({ msgErrorDienThoai: '' })
+        }
+
+        if (DiaChi == '') {
+            this.setState({ msgErrorHoDiaChi: 'Nhập địa chỉ' })
+            dem++;
+        } else {
+            this.setState({
+                msgErrorHoDiaChi: ''
+            })
+        }
+
+        this.setState({
+            dem: dem
+        })
+
+        if (dem > 0) {
+            return false;
+        }
+        return true;
+    }
+
+    onReceiveClick = () => {
+        var check = this.checkValidation(this.state.HoTen, this.state.DienThoai, this.state.DiaChi);
+
+    }
+
     render() {
         const { classes } = this.props;
         return ( <
@@ -39,6 +99,10 @@ class ReceiveCustomer extends React.Component {
             style = {
                 { width: '100%' } }
             /> <
+            Typography style = {
+                { color: 'red' } }
+            component = "p" > { this.state.msgErrorHoTen } <
+            /Typography> <
             /div> <
             div style = {
                 { width: '100%' } } >
@@ -49,6 +113,10 @@ class ReceiveCustomer extends React.Component {
             style = {
                 { width: '100%' } }
             /> <
+            Typography style = {
+                { color: 'red' } }
+            component = "p" > { this.state.msgErrorDienThoai } <
+            /Typography> <
             /div> <
             div style = {
                 { width: '100%' } } >
@@ -59,6 +127,10 @@ class ReceiveCustomer extends React.Component {
             style = {
                 { width: '100%' } }
             /> <
+            Typography style = {
+                { color: 'red' } }
+            component = "p" > { this.state.msgErrorHoDiaChi } <
+            /Typography> <
             /div> <
             div style = {
                 { width: '100%' } } >
@@ -77,7 +149,8 @@ class ReceiveCustomer extends React.Component {
             CardActions >
             <
             Button variant = "contained"
-            color = "primary" >
+            color = "primary"
+            onClick = { this.onReceiveClick } >
             Nhận khách <
             /Button> <
             /CardActions> <
