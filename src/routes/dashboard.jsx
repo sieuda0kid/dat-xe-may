@@ -4,7 +4,7 @@ import Tune from "@material-ui/icons/Tune";
 import PersonPin from "@material-ui/icons/PersonPin";
 import LocalTaxi from '@material-ui/icons/LocalTaxi';
 import Settings from '@material-ui/icons/Settings'
-import ReceiveRequest from "../views/ReceiveCustomer/ReceiveCustomerView";
+import ReceiveRequest from "../views/Receive/Request";
 import LocateRequest from "../views/Locate/Request";
 import ManageRequest from "../views/Manage/Request";
 import ManageDriver from "../views/Office/ManageDriver";

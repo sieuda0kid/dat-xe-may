@@ -45,18 +45,27 @@ var send_request=function(soket_driver,request,check)
     	soket_driver.emit("server_send_request",request);
     	
     	var action=setTimeout(()=>{
+            soket_driver.premission=false;
             reject(thoi_han);
     	}, 10000)
 
     	soket_driver.on("accept_request",function(data){
-           console.log(`driver ${soket_driver.user.username} Da Chap Nhan`);
+            if(soket_driver.premission===true){
+            console.log(`===========> Driver ${soket_driver.user.username} đã chấp nhận chuyến đy`);
            clearTimeout(action);
            thoi_han=true
            resolve(thoi_han);
+            }  
+        });
+        soket_driver.on("destroy_request",function(data){
+            soket_driver.premission=false;
+           console.log(`===========> Driver ${soket_driver.user.username} đã chấp nhận chuyến đy`);
+           clearTimeout(action);
+           thoi_han=true
+           reject(thoi_han);
         });
     })
 }
-
 
 
 
@@ -120,4 +129,20 @@ exports.updateStatusRequestWithDriver=function(socket,requestLocation,arrDriver)
    var arrDistance=[];
    var arrDistance=getListDistance(arrDriver,requestLocation);
    tripRepos.updateStatusRequestWithDriver(data).then(data=>{}).catch(err=>{console.log(err)});
+}
+
+exports.driverOnline=function(socket,data,arrDriver){
+    arrDriver.map(e=>{
+        if(e.user.id===socket.user.id){e.driver_status=1;}
+    })
+    userRepos.updateStausDriver(socket.user.id,1).then(data=>{}).catch(err=>{console.log(err)});
+}
+
+
+
+exports.driverOffline=function(socket,data,arrDriver){
+    arrDriver.map(e=>{
+        if(e.user.id===socket.user.id){e.driver_status=3;}
+    })
+    userRepos.updateStausDriver(socket.user.id,3).then(data=>{}).catch(err=>{console.log(err)});
 }
