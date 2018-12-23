@@ -6,7 +6,7 @@ import AdminView from './../../views/Admin/admin'
 import CustomerView from './../../views/Customer/customer';
 import DriverView from './../../views/Driver/driver';
 import PersonnelView from './../../views/Personnel/personnel';
-import ReceiveCustomerView from './../../views/ReceiveCustomer/ReceiveCustomerView';
+import ReceiveCustomerView from './../../views/Receive/Request';
 import withStyles from "@material-ui/core/styles/withStyles";
 import Footer from "./../../components/Home/Footer";
 const switchRouter = (
