@@ -24,7 +24,7 @@ class LocateRequestView extends Component {
     return (
       <GridContainer >
         <Card>
-          <CardHeader color="primary">
+          <CardHeader color="success">
             <h2>THÔNG TIN ĐỊA CHỈ: {this.state.address}</h2>
           </CardHeader>
           <div style={{ flex: 1, height: window.innerHeight }}>

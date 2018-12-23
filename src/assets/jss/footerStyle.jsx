@@ -4,7 +4,7 @@ const footerStyle = {
     backgroundColor: '#3c3d41',
     color: 'White',
     paddingTop: 30,
-    margin: 0 -41,
+    margin: 0 -8,
     marginTop: 100,
   },
   logo: {

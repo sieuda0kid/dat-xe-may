@@ -24,3 +24,59 @@ export function loginApi(username, password,type) {
     }
     return fetchApi('user/login', 'POST', body);
 }
+
+export function getUserByTokenApi(access_token, refresh_token){
+    var body = {
+        access_token: access_token,
+        refresh_token: refresh_token
+    }
+    return fetchApi('user/getUserByToken', 'POST', body);
+}
+
+export function getUserByIdApi(access_token, refresh_token, id){
+    var body = {
+        access_token: access_token,
+        refresh_token: refresh_token,
+        id: id
+    }
+    return fetchApi('user/getUser', 'POST', body);
+}
+
+export function getUserForTypeApi(access_token, refresh_token, dif){
+    var body = {
+        access_token: access_token,
+        refresh_token: refresh_token,
+        dif: dif
+    }
+    return fetchApi('user/getUserForType', 'POST', body);
+}
+
+export function getAllTripApi(access_token, refresh_token){
+    var body = {
+        access_token: access_token,
+        refresh_token: refresh_token,
+    }
+    return fetchApi('trip/getAllTrip', 'POST', body);
+}
+
+export function getTripByDriverIdApi(access_token, refresh_token, driverId){
+    var body = {
+        access_token: access_token,
+        refresh_token: refresh_token,
+        driverID: driverId,
+    }
+    return fetchApi('trip/getTripByDriverId', 'POST', body);
+}
+
+export function addCustomerAndTripApi(access_token, refresh_token, customerInfo, note){
+    var body = {
+        access_token: access_token,
+        refresh_token: refresh_token,
+        customerName: customerInfo.customerName,
+        customerPhone: customerInfo.customerPhone,
+        customerAddress: customerInfo.customerAddress,
+        note: note,
+        isDelete: 0
+    }
+    return fetchApi('trip/addCustomerAndTrip', 'POST', body);
+}

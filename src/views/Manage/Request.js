@@ -52,6 +52,7 @@ class ManageRequestView extends React.Component {
         tableTitleSecondary={this.state.tableTitleSecondary}
         tableHead={tableHead}
         tableData={this.state.tableData}
+        sls = "2"
       />
     );
   }

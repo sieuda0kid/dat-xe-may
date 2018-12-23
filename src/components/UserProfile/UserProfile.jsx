@@ -1,11 +1,11 @@
 import React from "react";
 import withStyles from "@material-ui/core/styles/withStyles";
 import { Typography } from "@material-ui/core";
-import Card from "../../components/Card/Card.jsx";
-import CardAvatar from "../../components/Card/CardAvatar.jsx";
-import CardBody from "../../components/Card/CardBody.jsx";
+import Card from "../Card/Card.jsx";
+import CardAvatar from "../Card/CardAvatar.jsx";
+import CardBody from "../Card/CardBody.jsx";
 import moment from 'moment';
-import Avatar from "../../components/Avatar/Avatar.js";
+import Avatar from "../Avatar/Avatar.js"
 
 class UserProfile extends React.Component {
 

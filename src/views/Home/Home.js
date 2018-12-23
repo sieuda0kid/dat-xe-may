@@ -1,71 +1,90 @@
 import React from 'react';
-import withStyles from "@material-ui/core/styles/withStyles";
-import { Grid, Typography, NativeSelect, Button } from '@material-ui/core';
 import StarIcon from '@material-ui/icons/Star';
 import TopHomeView from './../../assets/images/TopHomeView.png';
 import av1 from './../../assets/images/av1.png';
 import av2 from './../../assets/images/av2.png';
 import av3 from './../../assets/images/av3.png';
-import { login } from '../../store/actions/user';
-import { connect } from 'react-redux';
+import { withStyles } from '@material-ui/core/styles';
+import { connect } from "react-redux";
+import { login, getUserInfo } from "../../store/actions/user";
+import { Grid, Typography, Button } from "@material-ui/core";
+import Footer from "./../../components/Home/Footer";
+import Header from '../../components/Home/HomeHeader.jsx'
+import io from 'socket.io-client';
+const socket = io('http://localhost:8888')
+
 class Home extends React.Component {
 	constructor(props) {
 		super(props);
+
 		this.state = {
 			username: '',
 			password: '',
-			type: '1',
+
+			loginError: '',
+			userType: -1,
+
+			isLoading: false,
 		};
 	}
 
-	componentWillMount() {
 
-	}
-
-	onValueChange = (event) => {
-		if (event.target.id === "txtUsername") {
-			this.setState({
-				username: event.target.value
-			})
-		}
-		else if (event.target.id === "txtPassword")
-			this.setState({
-				password: event.target.value
-			})
-		else if (event.target.id === "txtType") {
-			this.setState({
-				type: event.target.value
-			})
-		}
-	}
-
-	onLoginClick = (username, password, type) => {
-		this.props.doLogin(username, password, type).then((resJson) => {
-			if (resJson.returnCode === 1) {
-				if (resJson.user.type === "1")
-					this.props.history.push('/personnel');
-				else if (resJson.user.type === "2")
-					this.props.history.push('/driver');
-				else if (resJson.user.type === "3")
-					this.props.history.push('/admin');
-			}
-
-		}).catch((error) => {
-			console.log(error);
+	handleChange = name => event => {
+		this.setState({
+			[name]: event.target.value,
 		});
+	};
+
+	onLogin = (username, password) => {
+		this.setState({
+			isLoading: !this.state.isLoading,
+		})
+		this.props.doLogin(username, password)
+			.then(resJson => {
+				this.setState({
+					isLoading: !this.state.isLoading,
+				})
+				if (resJson.returnCode === 1) {
+					
+					this.props.doGetUserInfo(resJson.user.userId);
+
+					
+					socket.emit('send_refresh_token', resJson.user.refresh_token);
+					this.setState({
+						loginError: '',
+						userType: resJson.user.userType,
+					})
+					if (resJson.user.userType !== 4) {
+						this.props.history.push('/dashboard')
+					} else {
+						this.props.history.push('/driver')
+					}
+				} else {
+					this.setState({
+						loginError: 'Tài khoản hoặc mật khẩu không chính xác'
+					})
+				}
+			})
+			.catch(error => {
+				console.log('Login error', error);
+			})
 	}
-
-
 
 	componentDidMount() {
-		if (localStorage.getItem('access_token') !== null)
-			this.props.history.push('/personnel')
+		console.log("access_token", sessionStorage.getItem('access_token'));
+		
+		if (sessionStorage.getItem('access_token') !== null) {
+			this.props.history.push('/dashboard')
+		}
 	}
 
 	render() {
 		const { classes } = this.props
 		return (
-			<Grid container space={12}>
+			<Grid container space={0}>
+				<Grid item xs={12} sm={12} md={12}>
+					<Header/>
+				</Grid>
 				<Grid item xs={12} sm={12} md={12} className={classes.root}>
 					<img src={TopHomeView} alt="TopHomeView" className={classes.img} />
 					<div className={classes.formlogin}>
@@ -76,29 +95,20 @@ class Home extends React.Component {
 							Tài khoản
 						</Typography>
 						<input type="text" id="txtUsername" name="txtUsername" placeholder="Nhập tên tài khoản" className={classes.input}
-							onChange={this.onValueChange}
+							onChange={this.handleChange('username')}
 						/>
 						<Typography className={classes.label2}>
 							Mất khẩu
 						</Typography>
 						<input type="password" id="txtPassword" name="txtPassword" placeholder="Nhập mất khẩu" className={classes.input}
-							onChange={this.onValueChange}
+							onChange={this.handleChange('password')}
 						/>
-						<Typography className={classes.label2}>
-							Loại tài khoản
-						</Typography>
-						<NativeSelect
-							onChange={this.onValueChange}
-							name="txtType"
-							id="txtType"
-							className={classes.selectEmpty}
-						>
-							<option value="1">Nhân viên</option>
-							<option value="2">Tài xế</option>
-							<option value="3">Quản lý</option>
-						</NativeSelect>
+						{this.state.loginError !== ''
+							?
+							<Typography style={{ color: 'red', fontFamily: 'Roboto-Light', fontSize: 12 }}>{this.state.loginError}</Typography>
+						: null}
 						<Button variant="contained" color="primary" className={classes.button}
-							onClick={() => this.onLoginClick(this.state.username, this.state.password, this.state.type)}
+						onClick={()=>this.onLogin(this.state.username, this.state.password)}
 						>
 							Đăng nhập
       					</Button>
@@ -145,7 +155,11 @@ class Home extends React.Component {
 						</Typography>
 					</div>
 				</Grid>
+				<Grid item xs={12} sm={12} md={12}>
+					<Footer/>
+				</Grid>
 			</Grid>
+			
 		)
 	}
 }
@@ -193,7 +207,7 @@ const styles = theme => ({
 	formlogin: {
 		width: 341,
 		height: 370,
-		top: 100,
+		top: 127,
 		left: 92,
 		textAlign: 'center',
 		position: 'static',
@@ -219,6 +233,7 @@ const styles = theme => ({
 	},
 	button: {
 		marginTop: 20,
+		marginBottom: 20,
 	},
 	av: {
 		top: 0,
@@ -230,15 +245,11 @@ const styles = theme => ({
 	}
 });
 
-const mapStateToProps = state => {
-	return {
-	};
-};
-
 const mapDispatchToProps = dispatch => {
 	return {
-		doLogin: (username, password, type) => dispatch(login(username, password, type))
+		doGetUserInfo: (id) => dispatch(getUserInfo(id)),
+		doLogin: (username, password) => dispatch(login(username, password))
 	};
-};
-
-export default withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(Home));
+  };
+  
+  export default withStyles(styles)(connect(null, mapDispatchToProps)(Home));

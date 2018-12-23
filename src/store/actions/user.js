@@ -1,25 +1,44 @@
 import { SAVE_PROFILE } from './actionType';
-import { loginApi }
-    from '../../api/AppApi';
-// import decode from 'jwt-decode';
-import jwt from 'jsonwebtoken';
-export const saveProfile = (profile) => {
-    return {
-        type: SAVE_PROFILE,
-        profile: profile,
-    };
-}
+import {
+    loginApi, getUserByTokenApi, getUserByIdApi, getUserForTypeApi
+} from '../../api/AppApi';
+var md5 = require('md5');
 
-export const login = (username, password, type) => {
+export const login = (username, password) => {
     return (dispatch) => {
         const promise = new Promise((resolve, reject) => {
-            loginApi(username, password, type)
+            var md5Password = md5(password);
+            loginApi(username, md5Password)
                 .then((responseJson) => {
+                    console.log('login api response: ', responseJson);
                     if (responseJson.returnCode === 1) {
                         var access_token = responseJson.user.access_token;
                         var refresh_token = responseJson.user.refresh_token;
-                        localStorage.setItem('access_token', access_token);
-                        localStorage.setItem('refresh_token', refresh_token);
+                        sessionStorage.setItem('access_token', access_token);
+                        sessionStorage.setItem('refresh_token', refresh_token);
+                        var user = responseJson.user;
+                        dispatch(saveProfile(user));
+                    }
+                    dispatch(saveProfile(null));
+                    resolve(responseJson);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        })
+        return promise;
+    }
+}
+
+export const getUserByToken = () => {
+    return (dispatch) => {
+        const promise = new Promise((resolve, reject) => {
+            var access_token = sessionStorage.getItem('access_token');
+            var refresh_token = sessionStorage.getItem('refresh_token');
+            getUserByTokenApi(access_token, refresh_token)
+                .then((responseJson) => {
+                    console.log('getUserByToken api response: ', responseJson);
+                    if (responseJson.returnCode === 1) {
                         var user = responseJson.user;
                         dispatch(saveProfile(user));
                     }
@@ -30,29 +49,48 @@ export const login = (username, password, type) => {
                 });
         })
         return promise;
-    };
+    }
 }
 
-export const checkToken = (access_token) => {
+export const getUserInfo = (id) => {
     return (dispatch) => {
-        const promise = new Promise((resolve, reject) => {
-            // const { exp } = decode(access_token);
-            // let date = Date.now() / 1000;
-            // console.log('exp ' + exp);
-            // console.log('date ' + date);
-            var res = {
-                returnCode: '',
-            };
-            jwt.verify(access_token, 'token', function (err, user) {
-                if (err) {
-                    if (err.message === 'jwt expired')
-                        res.returnCode = 1;
-                } else {
-                    res.returnCode = 2;
+        var access_token = sessionStorage.getItem('access_token');
+        var refresh_token = sessionStorage.getItem('refresh_token');
+        getUserByIdApi(access_token, refresh_token, id)
+            .then((responseJson) => {
+                console.log('getUserInfo api response: ', responseJson);
+                if (responseJson.returnCode === 1) {
+                    var user = responseJson.user;
+                    dispatch(saveProfile(user));
                 }
             })
-            resolve(res);
+            .catch((error) => {
+                console.log(error);
+            });
+    }
+}
+
+export const getUserForType = (dif) => {
+    return (dispatch) => {
+        const promise = new Promise((resolve, reject) => {
+            var access_token = sessionStorage.getItem('access_token');
+            var refresh_token = sessionStorage.getItem('refresh_token');
+            getUserForTypeApi(access_token, refresh_token, dif)
+                .then((responseJson) => {
+                    console.log('getUserForType api response: ', responseJson);
+                    resolve(responseJson);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
         })
         return promise;
+    }
+}
+
+export const saveProfile = (profile) => {
+    return {
+        type: SAVE_PROFILE,
+        profile: profile
     };
 }
