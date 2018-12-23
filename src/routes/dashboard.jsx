@@ -1,8 +1,8 @@
-import AddLocation from "@material-ui/icons/AddLocation";
+import Gesture from "@material-ui/icons/Gesture";
 import LocationOn from "@material-ui/icons/LocationOn";
-import EditLocation from "@material-ui/icons/EditLocation";
-import AccessibilityNew from "@material-ui/icons/AccessibilityNew";
-import DirectionsBike from '@material-ui/icons/DirectionsBike';
+import Tune from "@material-ui/icons/Tune";
+import PersonPin from "@material-ui/icons/PersonPin";
+import LocalTaxi from '@material-ui/icons/LocalTaxi';
 import Settings from '@material-ui/icons/Settings'
 import ReceiveRequest from "../views/ReceiveCustomer/ReceiveCustomerView";
 import LocateRequest from "../views/Locate/Request";
@@ -23,7 +23,7 @@ const dashboardRoutes = [
     path: "/dashboard/receiverequest",
     sidebarName: "Nhận chuyến đi",
     navbarName: "Nhận chuyến đi",
-    icon: AddLocation,
+    icon: Gesture,
     component: ReceiveRequest
   },
   {
@@ -37,7 +37,7 @@ const dashboardRoutes = [
     path: "/dashboard/managerequest",
     sidebarName: "Quản lý chuyến đi",
     navbarName: "Quản lý chuyến đi",
-    icon: EditLocation,
+    icon: Tune,
     component: ManageRequest
   },
   {
@@ -51,14 +51,14 @@ const dashboardRoutes = [
     path: "/dashboard/managedriver",
     sidebarName: "Danh sách tài xế",
     navbarName: "Danh sách tài xế",
-    icon: DirectionsBike,
+    icon: LocalTaxi,
     component: ManageDriver
   },
   {
     path: "/dashboard/managepersonnel",
     sidebarName: "Danh sách nhân viên",
     navbarName: "Danh sách nhân viên",
-    icon: AccessibilityNew,
+    icon: PersonPin,
     component: ManagePersonnel
   },
   {

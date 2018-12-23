@@ -2,7 +2,6 @@ import React from "react";
 import classNames from "classnames";
 import PropTypes from "prop-types";
 import { NavLink, Link } from "react-router-dom";
-// @material-ui/core components
 import withStyles from "@material-ui/core/styles/withStyles";
 import Drawer from "@material-ui/core/Drawer";
 import Hidden from "@material-ui/core/Hidden";
@@ -12,11 +11,9 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import Icon from "@material-ui/core/Icon";
 import Logout from "@material-ui/icons/ExitToApp";
-// core components
 import HeaderLinks from "../../components/Header/HeaderLinks.jsx";
 import sidebarStyle from "../../assets/jss/material-dashboard-react/components/sidebarStyle.jsx";
 const Sidebar = ({ ...props }) => {
-  // verifies if routeName is the one active (in browser input)
   function activeRoute(routeName) {
     return props.location.pathname.indexOf(routeName) > -1 ? true : false;
   }
@@ -52,7 +49,7 @@ const Sidebar = ({ ...props }) => {
         });
         return (
           prop.icon === '' ?
-            <ListItem className={classes.itemLink + listItemClasses}>
+            <ListItem key={key} className={classes.itemLink + listItemClasses}>
               <ListItemIcon className={classes.itemIcon + whiteFontClasses}>
                 {typeof prop.icon === "string" ? (
                   <Icon>{prop.icon}</Icon>
@@ -114,12 +111,11 @@ const Sidebar = ({ ...props }) => {
           }}
           onClose={props.handleDrawerToggle}
           ModalProps={{
-            keepMounted: true // Better open performance on mobile.
+            keepMounted: true
           }}
         >
           {brand}
           <div className={classes.sidebarWrapper}>
-            <HeaderLinks />
             {links}
           </div>
           {image !== undefined ? (
