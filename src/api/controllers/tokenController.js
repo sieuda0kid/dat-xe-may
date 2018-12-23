@@ -44,7 +44,7 @@ var createNewToken=function(ref_token,req,res,next){
             req.new_token=acToken;
             next();
         })
-        .catch(err=>{console.log("không lấy dc loadOne staff by id "+err)});
+        .catch(err=>{console.log("không lấy được loadOne staff by id "+err)});
       }else{
         res.json({
             returnCode:0,
@@ -53,7 +53,7 @@ var createNewToken=function(ref_token,req,res,next){
       }
     })
     .catch(err => {
-      console.log("không lấy dc getRefreshTokenByToken "+err);
+      console.log("không lấy được getRefreshTokenByToken "+err);
     })
 }
 

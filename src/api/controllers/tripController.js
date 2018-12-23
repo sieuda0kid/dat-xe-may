@@ -18,7 +18,7 @@ exports.getTripByDriverId=function(req,res){
         }else {
            res.json({
                 returnCode:0,
-                message:" khong co trip nao!",
+                message:"không có trip nào !",
                 object:rows
             })
         }
