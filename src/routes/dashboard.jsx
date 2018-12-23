@@ -4,7 +4,7 @@ import EditLocation from "@material-ui/icons/EditLocation";
 import AccessibilityNew from "@material-ui/icons/AccessibilityNew";
 import DirectionsBike from '@material-ui/icons/DirectionsBike';
 import Settings from '@material-ui/icons/Settings'
-import ReceiveRequest from "../views/ReceiveCustomer/ReceiveCustomerView";
+import ReceiveRequest from "../views/Receive/Request";
 import LocateRequest from "../views/Locate/Request";
 import ManageRequest from "../views/Manage/Request";
 import ManageDriver from "../views/Office/ManageDriver";

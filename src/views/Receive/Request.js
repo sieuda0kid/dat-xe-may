@@ -67,6 +67,12 @@ class ReceiveCustomer extends React.Component {
     return true;
   };
 
+  handleChange = name => event => {
+    this.setState({
+      [name]: name == 'DienThoai' ? event.target.value.replace(/[^0-9]/g, '') : event.target.value ,
+    });
+  };
+
   ReceiveCusClicked = () => {
     var check = this.checkValidation(
       this.state.HoTen,
@@ -91,6 +97,8 @@ class ReceiveCustomer extends React.Component {
                   label="Họ tên"
                   margin="dense"
                   style={{ width: "100%" }}
+                  value={this.state.HoTen}
+                  onChange={this.handleChange('HoTen')}
                 />
                 <Typography style={{ color: "red" }} component="p">
                   {this.state.msgErrorHoTen}
@@ -102,24 +110,30 @@ class ReceiveCustomer extends React.Component {
                   label="Số điện thoại"
                   margin="dense"
                   style={{ width: "100%" }}
-                />{" "}
+                  value={this.state.DienThoai}
+                  onChange={this.handleChange('DienThoai')}
+                  inputProps={{
+                    maxLength: 10
+                  }}
+                />
                 <Typography style={{ color: "red" }} component="p">
-                  {" "}
-                  {this.state.msgErrorDienThoai}{" "}
-                </Typography>{" "}
-              </div>{" "}
+                  {this.state.msgErrorDienThoai}
+                </Typography>
+              </div>
               <div style={{ width: "100%" }}>
                 <TextField
                   id="standard-dense"
                   label="Địa chỉ đón khách"
                   margin="dense"
                   style={{ width: "100%" }}
-                />{" "}
+                  value={this.state.DiaChi}
+                  onChange={this.handleChange('DiaChi')}
+                />
                 <Typography style={{ color: "red" }} component="p">
-                  {" "}
-                  {this.state.msgErrorHoDiaChi}{" "}
-                </Typography>{" "}
-              </div>{" "}
+                  
+                  {this.state.msgErrorHoDiaChi}
+                </Typography>
+              </div>
               <div style={{ width: "100%" }}>
                 <TextField
                   id="standard-dense"
@@ -128,20 +142,22 @@ class ReceiveCustomer extends React.Component {
                   multiline
                   rows="3"
                   style={{ width: "100%" }}
-                />{" "}
+                  value={this.state.GhiChu}
+                  onChange={this.handleChange('GhiChu')}
+                />
               </div>
-            </CardContent>{" "}
+            </CardContent>
             <CardActions>
               <Button
                 variant="contained"
                 color="primary"
                 onClick={this.ReceiveCusClicked}
               >
-                Nhận khách{" "}
-              </Button>{" "}
-            </CardActions>{" "}
-          </Card>{" "}
-        </Grid>{" "}
+                Nhận khách
+              </Button>
+            </CardActions>
+          </Card>
+        </Grid>
       </div>
     );
   }
