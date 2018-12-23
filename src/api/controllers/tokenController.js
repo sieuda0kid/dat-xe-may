@@ -4,14 +4,17 @@ var randomstring = require("randomstring");
 var socket = require('../app.js');
 var userRepo = require('../repo/userRepo.js');
 var tokenRepo = require('../repo/tokenRepo.js');
-require('doitennv').config();
+require('dotenv').config();
 
+exports.deleteToken=function(res,rep){
+ 
+}
 
 exports.generateToken = function(user){
     var user_token={
         user:user
     }
-    return token = jwt.sign(user_token, process.env.JWT_SECRET, {
+    return token = jwt.sign(user_token, "token", {
         expiresIn: 60*30 // expires in 1 week
     });
 }
@@ -60,7 +63,7 @@ exports.checkAccessToken = function(req,res,next){
     var token=req.body.access_token;
     var ref_token=req.body.refresh_token.toString();
     if(token){
-        jwt.verify(token, process.env.JWT_SECRET, function(err, user) {
+        jwt.verify(token, "token", function(err, user) {
             if(err){
                 if(err.message==='jwt expired')
                 {

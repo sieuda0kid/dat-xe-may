@@ -1,5 +1,4 @@
 var BASE_URL = 'http://localhost:8888/'
-var md5 = require('md5');
 
 function fetchApi(url, method, data){
     var path = BASE_URL + url;
@@ -15,12 +14,10 @@ function fetchApi(url, method, data){
         body: JSON.stringify(data)
     }).then(response => response.json());
 }
-
-export function loginApi(username, password,type) {
+export function loginApi(username, password) {
     var body = {
         username: username,
-        password: md5(password),
-        type: type,
+        password: password
     }
     return fetchApi('user/login', 'POST', body);
 }

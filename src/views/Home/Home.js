@@ -45,10 +45,7 @@ class Home extends React.Component {
 					isLoading: !this.state.isLoading,
 				})
 				if (resJson.returnCode === 1) {
-					
 					this.props.doGetUserInfo(resJson.user.userId);
-
-					
 					socket.emit('send_refresh_token', resJson.user.refresh_token);
 					this.setState({
 						loginError: '',
@@ -105,7 +102,11 @@ class Home extends React.Component {
 						/>
 						{this.state.loginError !== ''
 							?
-							<Typography style={{ color: 'red', fontFamily: 'Roboto-Light', fontSize: 12 }}>{this.state.loginError}</Typography>
+							<Typography className={classes.error}>
+							<span style={{color: "red", fontSize: 25, fontWeight: 900}}>* </span>
+							{this.state.loginError}
+							<span style={{color: "red", fontSize: 25, fontWeight: 900}}> *</span>
+							</Typography>
 						: null}
 						<Button variant="contained" color="primary" className={classes.button}
 						onClick={()=>this.onLogin(this.state.username, this.state.password)}
@@ -204,8 +205,21 @@ const styles = theme => ({
 		},
 	},
 
+	error: {
+		marginTop: 20,
+		fontSize: 18,
+		textAlign: 'left',
+		marginLeft: 2,
+		color: 'red',
+		fontFamily: 'roboto bold',
+		marginBottom: 10,
+		[theme.breakpoints.up("md")]: {
+			color: 'white',
+		},
+	},
+
 	formlogin: {
-		width: 341,
+		width: 350,
 		height: 370,
 		top: 127,
 		left: 92,

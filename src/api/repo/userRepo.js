@@ -1,11 +1,11 @@
-// var db  = require('../fn/mysql-db');
-// var md5 = require('crypto-js/md5');
+var db  = require('../fn/mysql-db');
+var md5 = require('crypto-js/md5');
 
-// exports.loadAll = function() {
-// 	var sql = `select * from staff where isDelete = 0`;
-// 	console.log(sql);
-// 	return db.load(sql);
-// }
+exports.loadAll = function() {
+	var sql = `select * from staff where isDelete = 0`;
+	console.log(sql);
+	return db.load(sql);
+}
 
 // exports.loadOne = function(id) {
 // 	// console.log("id load one :"+id);
@@ -37,11 +37,11 @@
 // 	console.log(sql);
 // 	return db.load(sql);
 // }
-// exports.login = function(c) {
-// 	var sql = `select * from staff where username = '${c.username}' and password = '${c.password}'`;
-// 	console.log(sql);
-// 	return db.load(sql);
-// }
+exports.login = function(c) {
+	var sql = `select * from staff where username = '${c.username}' and password = '${c.password}'`;
+	console.log(sql);
+	return db.load(sql);
+}
 
 // exports.add = function(c) {
 // 	var sql = `insert into staff(username,password,fullname,userType,isDelete,phone,dob) values('${c.username}','${c.password}','${c.fullname}',${c.userType},${c.isDelete},'${c.phone}','${c.dob}')`;

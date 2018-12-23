@@ -4,6 +4,35 @@ require('dotenv').config();
 var moment=require('moment');
 var socket=require('../app.js');
 
+exports.getTripByDriverId=function(req,res){
+    var c=req.body;
+    tripRepo.getTripByDriverId(c.driverID)
+    .then(rows=>{
+        if(rows.length>0)
+        {
+           res.json({
+                returnCode:1,
+                message:" lấy danh sách trip thành công!",
+                object:rows
+            })
+        }else {
+           res.json({
+                returnCode:0,
+                message:" khong co trip nao!",
+                object:rows
+            })
+        }
+    })
+    .catch(err=>{
+        res.json({
+                returnCode:0,
+                message:"lấy danh sách trip thất bại!",
+                error:err
+            });
+    })
+}
+
+
 
 //update trang thai chuyen di
 exports.updateTripLocation = function(req,res) {
@@ -83,7 +112,6 @@ exports.updateTripStatus = function(req,res) {
 
 
 //them khach va chuyen di
-
  exports.addCustomerAndTrip=function(req,res){
     var c=req.body;
     var users=req.user_token;

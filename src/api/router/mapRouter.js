@@ -1,6 +1,6 @@
-var map = require('../controller/mapController.js');
+var map = require('../controllers/mapController.js');
 express = require('express');
-var token = require('../controller/tokenController.js');
+var token = require('../controllers/tokenController.js');
 
 var router = express.Router();
 

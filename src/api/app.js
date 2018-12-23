@@ -5,9 +5,8 @@ var userCtrl = require('./controllers/userController');
 var tokenCtrl = require("./controllers/tokenController.js");
 const tokenList = {};
 var app = express();
-var token= require('.repo/userRepo.js');
 var cors =  require('cors');
-
+var token = require('./repo/userRepo.js');
 app.use(morgan('dev'));
 app.use(cors());
 app.use(bodyParser.json());

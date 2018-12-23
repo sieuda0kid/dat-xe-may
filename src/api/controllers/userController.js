@@ -5,57 +5,6 @@ var tokenCtrl=require("../controllers/tokenController.js");
 var md5 = require('crypto-js/md5');
 var jwt = require('jsonwebtoken');
 
-// router.post('/login', (req, res) => {
-//     var u = req.body;
-//     userRepo.login(u)
-//         .then(value => {
-//             res.statusCode = 201;
-//             var user = {
-//                 username : u.username,
-//                 password : u.password,
-//                 access_token : tokenCtrl.generateToken(value),
-//                 refresh_token : tokenCtrl.generateToken(value),
-//             }
-//             res.json({
-//                 returnCode: 1,
-//                 message: 'success',
-//                 user: user,
-//             });
-//         })
-//         .catch(err => {
-//             console.log(err);
-//             res.statusCode = 500;
-//             res.end('View error log on server console');
-//         })
-// })
-
-// module.exports = router;
-
-exports.login = function(req,res) {
-	var u = req.body;
-    userRepo.login(u)
-        .then(value => {
-            res.statusCode = 201;
-            var user = {
-                username : u.username,
-                password : u.password,
-                type: u.type,
-                access_token : tokenCtrl.generateToken(value),
-                refresh_token : tokenCtrl.generateToken(value),
-            }
-            res.json({
-                returnCode: 1,
-                message: 'success',
-                user: user,
-            });
-        })
-        .catch(err => {
-            console.log(err);
-            res.statusCode = 500;
-            res.end('View error log on server console');
-        })
-};
-
 exports.showAll =function(req,res){
     userRepo.loadAll()
 	.then(rows => {
@@ -110,11 +59,11 @@ exports.getUsers = function(req,res){
 exports.getUsersByToken= function(req,res){
     var reToken=req.body.access_token;
 	var new_token= req.new_token;
-	jwt.verify(reToken, process.env.JWT_SECRET, function(err, user) {
+	jwt.verify(reToken, "token", function(err, user) {
 		if(err){
 			if(err.message ==='jwt expired')
 			{
-				jwt.verify(new_token, process.env.JWT_SECRET, function(err, users) {
+				jwt.verify(new_token, "token", function(err, users) {
 					if(users){
 						res.json({
 							returnCode:1,
@@ -247,4 +196,3 @@ exports.login = function(req,res) {
 			});
 	})
 };
-1``
