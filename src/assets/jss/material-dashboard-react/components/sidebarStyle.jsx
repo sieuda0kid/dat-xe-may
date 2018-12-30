@@ -84,8 +84,10 @@ const sidebarStyle = theme => ({
     marginRight: "15px"
   },
   img: {
-    width: "35px",
-    top: "22px",
+    width: "80px",
+	height: "70px",
+	left: "0px",
+    top: "1px",
     position: "absolute",
     verticalAlign: "middle",
     border: "0"
@@ -107,7 +109,7 @@ const sidebarStyle = theme => ({
       height: "100%",
       content: '""',
       display: "block",
-      background: "#000",
+      background: "#005f89",
       opacity: ".8"
     }
   },

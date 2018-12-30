@@ -17,10 +17,10 @@ class HomeHeader extends React.Component {
         return (
             <div className={classes.root}>
                 <Link to="/home" style={{ textDecoration: 'none', marginRight: 50 }}>
-                    <img src={logo} alt="logo" width="55" height="45" style={{ float: 'left' }} />
+                    <img src={logo} alt="logo" width="80" height="70" style={{ float: 'left' }} />
                     <div style={{ marginTop: 11, marginLeft: 5, display: 'inline', float: 'left' }}>
-                        <Typography style={{ fontFamily: 'roboto medium', fontSize: 23 }}>
-                            BikeGrab
+                        <Typography style={{ fontFamily: 'roboto medium', fontSize: 23, marginTop: 10, marginLeft: -10 }}>
+                            Tesla
                     </Typography>
                     </div>
                 </Link>

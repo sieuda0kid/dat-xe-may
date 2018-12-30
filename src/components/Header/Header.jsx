@@ -2,6 +2,7 @@ import React from "react";
 import classNames from "classnames";
 import PropTypes from "prop-types";
 import withStyles from "@material-ui/core/styles/withStyles";
+import { Typography } from "@material-ui/core";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
@@ -30,9 +31,7 @@ function Header({ ...props }) {
       <Toolbar className={classes.container}>
         <div className={classes.flex}>
           
-          <Button color="transparent" href="#" className={classes.title}>
-            {makeBrand()}
-          </Button>
+			<Typography style={{ color: '#005f89', fontSize: 30 }}>{makeBrand()}</Typography>
         </div>
         <Hidden smDown implementation="css">
           

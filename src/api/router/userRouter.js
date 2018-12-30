@@ -1,6 +1,6 @@
-var token=require('../controller/TokenCtrl.js');
+var token=require('../controllers/tokenController.js');
 express = require('express');
-var userCtrl= require('../controller/UserCtrl')
+var userCtrl= require('../controllers/userController')
 
 var router = express.Router();
 
@@ -14,12 +14,12 @@ router.route('/login')
 // .post(userCtrl.register);
 
 router.route('/getUser') 
-.post(token.checkAccessToken,userCtrl.getUser);
+.post(token.checkAccessToken,userCtrl.getUsers);
 
 router.route('/getUserByToken') 
-.post(token.checkAccessToken,userCtrl.getUserByToken);
+.post(token.checkAccessToken,userCtrl.getUsersByToken);
 
 router.route('/getUserForType') 
-.post(token.checkAccessToken,userCtrl.getUserForType);
+.post(token.checkAccessToken,userCtrl.getUsersForType);
 
 module.exports = router;

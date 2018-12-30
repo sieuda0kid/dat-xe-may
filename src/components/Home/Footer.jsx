@@ -10,7 +10,7 @@ function Footer({ ...props }) {
     <div className={classes.container}>
             <Grid container space={12}>
             <Grid item xs={12} sm={12} md={3} >
-            <h2><a className={classes.logo} href="/"> BikeGrab </a></h2>
+            <h2><a className={classes.logo} href="/"> Tesle </a></h2>
             </Grid>
             <Grid item xs={12} sm={12} md={2}>
             <h5 className={classes.h5}>Bắt đầu</h5>

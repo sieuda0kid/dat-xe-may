@@ -20,6 +20,8 @@ function CardHeader({ ...props }) {
     stats,
     icon,
     styles,
+    bg,
+    mar,
     ...rest
   } = props;
   
@@ -32,7 +34,7 @@ function CardHeader({ ...props }) {
     [className]: className !== undefined
   });
   return (
-    <div className={cardHeaderClasses} {...rest} style={{padding: styles}}>
+    <div className={cardHeaderClasses} {...rest} style={{margin:mar,padding: styles, background: bg}}>
       {children}
     </div>
   );

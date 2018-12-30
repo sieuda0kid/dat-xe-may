@@ -44,10 +44,10 @@ class Dashboard extends React.Component {
     if (navigator.platform.indexOf("Win") > -1) {
       const ps = new PerfectScrollbar(this.refs.mainPanel);
     }
-    // window.addEventListener("resize", this.resizeFunction);
-    // if (sessionStorage.getItem('access_token') === null){
-    //   this.props.history.push('/')
-    // }
+    window.addEventListener("resize", this.resizeFunction);
+    if (sessionStorage.getItem('access_token') === null){
+		this.props.history.push('/')
+    }
   }
   componentDidUpdate(e) {
     if (e.history.location.pathname !== e.location.pathname) {
@@ -63,10 +63,10 @@ class Dashboard extends React.Component {
   render() {
     const { classes, ...rest } = this.props;
     return (
-      <div className={classes.wrapper} style={{backgroundColor: '#EFEFEF'}}>
+      <div className={classes.wrapper} style={{backgroundColor: '#EFEFEF', marginTop: -8}}>
         <Sidebar
           routes={dashboardRoutes}
-          logoText={"BikeGrap"}
+          logoText={"Tesla"}
           logo={logo}
           image={image}
           handleDrawerToggle={this.handleDrawerToggle}

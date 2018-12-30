@@ -124,10 +124,10 @@ class ReceiveRequestView extends React.Component {
         <GridItem xs={0} sm={0} md={2} />
         <GridItem xs={12} sm={12} md={8}>
           <Card>
-            <CardHeader color="primary">
+            <CardHeader color="primary" bg="#483D8B" styles="15" mar="0">
               <h2 className={classes.cardTitleWhite}>THÔNG TIN CHUYẾN ĐI</h2>
             </CardHeader>
-            <CardBody>
+            <CardBody style={{background: "#63cdd7"}}>
               <div style={{ display: 'flex', flexDirection: 'column', width: '100%', padding: 20 }}>
                 <div style={{ display: 'flex', flexDirection: 'row' }}>
                   <div style={{ display: 'flex', flexDirection: 'column' }} className={classes.textField}>
@@ -148,9 +148,9 @@ class ReceiveRequestView extends React.Component {
                     <TextField
                       error={this.state.errorCount !== 0 && this.state.phoneErrorMessage !== ''}
                       id="standard-name"
-                      label="Số điện thoại *"
+                      label="SĐT *"
                       className={classes.textField}
-                      style={{ marginLeft: 10 }}
+                      style={{ marginLeft: 10, width: '94%'}}
                       value={this.state.phone}
                       onChange={this.handleChange('phone')}
                       margin="normal"
@@ -161,7 +161,8 @@ class ReceiveRequestView extends React.Component {
                 <TextField
                   error={this.state.errorCount !== 0 && this.state.addressErrorMessage !== ''}
                   id="standard-name"
-                  label="Địa chỉ đón khách *"
+                  label="Địa chỉ *"
+                  style={{width: '98%'}}
                   className={classes.textField}
                   value={this.state.address}
                   onChange={this.handleChange('address')}
@@ -170,7 +171,8 @@ class ReceiveRequestView extends React.Component {
                 <Typography style={{ color: 'red', fontFamily: 'Roboto-Light', fontSize: 12 }}>{this.state.addressErrorMessage}</Typography>
                 <TextField
                   id="standard-name"
-                  label="Ghi chú"
+                  label="Ghi chú *"
+                  style={{width: '98%'}}
                   className={classes.textField}
                   value={this.state.note}
                   onChange={this.handleChange('note')}
@@ -178,7 +180,7 @@ class ReceiveRequestView extends React.Component {
                   multiline
                   rows="6"
                 />
-                <Button round variant="contained" color="primary" style={{ width: 100, marginLeft: 'auto' }} onClick={this.onReceiveClick}>
+                <Button round variant="contained" color="primary" style={{ width: 100, marginLeft: 'auto', background: "#483D8B" }} onClick={this.onReceiveClick}>
                   <Typography style={{ color: '#FFFFFF' }}>Nhận</Typography>
                 </Button>
               </div>
@@ -194,13 +196,14 @@ class ReceiveRequestView extends React.Component {
 const styles = {
   textField: {
     width: '100%',
+    color: "White",
   },
   cardTitleWhite: {
     color: "#FFFFFF",
     marginTop: "0px",
     minHeight: "auto",
     fontWeight: "300",
-    fontFamily: "'Roboto', 'Helvetica', 'Arial', sans-serif",
+    fontFamily: "'roboto bold', 'Helvetica', 'Arial', sans-serif",
     marginBottom: "3px",
     textDecoration: "none"
   }
