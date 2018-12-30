@@ -1,12 +1,10 @@
 var express = require('express'),
     morgan = require('morgan'),
     bodyParser = require('body-parser');
-var userCtrl = require('./controllers/userController');
-var tokenCtrl = require("./controllers/tokenController.js");
-const tokenList = {};
 var app = express();
 var cors =  require('cors');
-var token = require('./repo/userRepo.js');
+var userRepos=require('./repo/userRepo.js');
+var driver=require('./controllers/driverController.js');
 app.use(morgan('dev'));
 app.use(cors());
 app.use(bodyParser.json());
@@ -46,41 +44,133 @@ var server = app.listen(port, () => {
 
 
 // socket
-var array_socket = [];
-var arr = [];
+var arr=[];
+var arrDriver=[];
+var arrRequest=[];
 var io = require('socket.io').listen(server);
 io.on('connection', function (socket) {
+    socket.user={id:0};
+    socket.location={};
     arr.push(socket);
-    socket.on("cnt", (data) => {
-        console.log("connect");
-        if (data) {
-            let info = {
-                username: data.username,
-                password: data.password,
-                type: data.type,
-                socket: socket,
-            }
-            array_socket.push(info);
+    socket.driver_status=1;
+    socket.premission=true;
+    socket.on('disconnect', function(){
+        console.log("$$$$$$$$$$$$$$$ USER : [ "+socket.user.username+" ] VUA OFFlINE");
+        if(socket.user.userType===4)
+        {
+            userRepos.updateStausDriver(socket.user.id,3).then(data=>{}).catch(err=>{console.log(err)});
         }
-    })
+        arr.splice(arr.indexOf(socket.id),1);
+        arrDriver.splice(arrDriver.indexOf(socket.id),1);
 
-    socket.on("sendUserProfile", (data) => {
-        
     });
-
-    socket.on('CreateNewToken', (data) => {
-         
+    socket.on("location_driver",function(data){
+        if(socket.user.userType===4){
+            socket.location=data;
+        }
     });
-
-    socket.on("DeleteToken", (data) => {
-        
-    })
-
-    socket.on('disconnect', function () {
+    socket.on("driver_online",function(data){
+        if(socket.user.userType===4){
+            driver.driverOnline(socket,data,arrDriver);
+        }
+    });
+    socket.on("driver_offline",function(data){
+        if(socket.user.userType===4){
+            driver.driverOffline(socket,data,arrDriver);
+        }
+    });
+    socket.on("begin_trip",function(data){
+        if(socket.user.userType===4){
+            driver.beginTrip(socket,data);
+        }
+    });
+    socket.on("end_trip",function(data){
+        if(socket.user.userType===4){
+            driver.endTrip(socket,data,arrDriver);
+        }
+    });
+    socket.on("request-client",function(data){
+        arrRequest.push(data);
+        if(data.status!=5){
+            driver.sendRequestForDriver(socket,data,arrDriver);
+        }else {
+            console.log("chuyen dy nay da hoan tat roi !!");
+        }  
+    });
+    //g
+    socket.on("receive-request",function(data){
+        arrRequest.push(data);
+        driver.sendRequestForDriver10s(socket,data,arrDriver,arrRequest);
+    });
+    socket.on("refuse-request",function(data){
+        arrRequest.push(data);
+        driver.driverRefuseRequest(socket,data,arrDriver,arrRequest);
+    });
+    // socket.on("accept_request",function(data){
+    //     arrRequest.splice(arrRequest.indexOf(data),1);
+    // });
+    socket.on("send_refresh_token",function(data){
+        console.log("nhan duoc send_refresh_token "+data);
+        if(data===null || data.length===0)
+        {
+               console.log("không nhan dc send_refresh_token tu client");
+        }else {
+            userRepos.getUserByRefreshToken(data)
+            .then(rows=>{
+                if(rows.length>0)
+                {
+                    socket.user=rows[0];
+                    console.log("$$$$$$$$$$$$$$$ USER : [ "+socket.user.username+" ] VUA ONLINE");
+                    if(socket.user.userType===4)
+                    {
+                        
+                        arrDriver.push(socket);
+                        userRepos.updateStausDriver(rows[0].id,1).then(data=>{}).catch(err=>{console.log(err)});
+                        
+                    }
+                    //console.log(rows[0]);
+                }
+            })
+            .catch(error=>{
+                console.log(error);
+            });
+        }   
     });
 
 })
-exports.guidata=(data,id, title)=>{
-	  
-	 
+app.get("/haha",(req,res)=>{
+     var user=[];
+    if(arr.length>0)
+    {
+        arr.map(e=>{
+           user.push({
+            socket:e.id,
+            userid:e.user.id,
+            username:e.user.username,
+            Type:e.user.userType
+           }); 
+        })
     }
+    res.json({
+        socket:user
+    });
+})
+var guidata=(data,id,title)=>{
+  console.log(data);
+	// console.log("id="+id);
+	// console.log("arr length ="+arr.length);
+
+	arr.map(socket=>{
+		if(socket.user.id === id)
+		{
+            socket.emit(title,data);
+        }
+    });
+}
+var guidataForType=(data,title)=>{
+   io.sockets.emit(title,data[0]);
+}
+module.exports.arrDriver=arrDriver;
+module.exports.guidata=guidata;
+module.exports.guidataForType=guidataForType;
+module.exports.arrRequest=arrRequest

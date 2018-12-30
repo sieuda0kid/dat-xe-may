@@ -126,7 +126,7 @@ exports.updateTripStatus = function(req,res) {
             customerAddress:c.customerAddress,
             isDelete:c.isDelete
         }
-        var stringUrl=`https://maps.googleapis.com/maps/api/geocode/json?address=${c.customerAddress}&key=${process.env.key}`;
+        var stringUrl=`https://maps.googleapis.com/maps/api/geocode/json?address=${c.customerAddress}&key=${"AIzaSyCHY7K0nxdBJ2MVMMVe46mJP8PvoezIUvc"}`;
         var url = encodeURI(stringUrl);
         mapRepo.getMapAPI(url)
         .then(body=>{

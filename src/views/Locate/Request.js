@@ -1,16 +1,22 @@
 import React, { Component } from 'react';
 import { Map, Marker, GoogleApiWrapper } from 'google-maps-react';
-import GridContainer from "../../components/Grid/GridContainer.jsx";
+import GridContainer from "../../components/Grid/GridContainer";
 import Card from "../../components/Card/Card.jsx";
 import CardHeader from "../../components/Card/CardHeader.jsx";
 
-class LocateRequestView extends Component {
+class Request extends Component {
   constructor(props) {
     super(props)
+    const {history}= this.props
+    // const infoTrip = history.location.state.infoTrip
+    
     this.state = {
-      address: "Nhà Thờ Đức Bà",
-      lat: 10.7629123,
-      lng: 106.6734333///Lat  lng này đợi server gửi qua tạm thời set mặc định
+      // address:infoTrip.customerAddress,
+      // lat: infoTrip.tripLatitude,
+      // lng:infoTrip.tripLongitude
+      address: "",
+      lat: "",
+      lng: "",
     }
   }
   mapClicked(mapProps, map, clickEvent) {
@@ -19,12 +25,16 @@ class LocateRequestView extends Component {
       lng: clickEvent.latLng.lng()
     })
   }
+  componentDidMount(){
+    console.log("history: "+ history.location.state);
+  }
   render() {
     const { lat, lng } = this.state
+
     return (
       <GridContainer >
         <Card>
-          <CardHeader color="success">
+          <CardHeader color="primary">
             <h2>THÔNG TIN ĐỊA CHỈ: {this.state.address}</h2>
           </CardHeader>
           <div style={{ flex: 1, height: window.innerHeight }}>
@@ -58,4 +68,4 @@ const styles = {
 };
 export default GoogleApiWrapper({
   apiKey: ("AIzaSyBWvtNFhg1yB1_q8i8F0aEFdGrSh4O1rPQ")
-})(LocateRequestView)
+})(Request)
