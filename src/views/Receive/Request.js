@@ -1,6 +1,5 @@
 import React from "react";
-import GridContainer from "../../components/Grid/GridContainer";
-import GridItem from "../../components/Grid/GridItem";
+import Grid from '@material-ui/core/Grid';
 import Button from "../../components/CustomButtons/Button.jsx";
 import Card from "../../components/Card/Card.jsx";
 import CardHeader from "../../components/Card/CardHeader.jsx";
@@ -119,10 +118,11 @@ class ReceiveRequestView extends React.Component {
   render() {
     const { classes } = this.props;
     return (
-      <GridContainer>
+      <Grid container spacing={0}>
         <AlertDialog open={this.state.isDialogOpen} title="Thông báo" content={this.state.dialogAlert}  onClose={this.handleClose}/>
-        <GridItem xs={0} sm={0} md={2} />
-        <GridItem xs={12} sm={12} md={8}>
+        <Grid item xs={false} sm={false} md={2} >
+        </Grid>
+        <Grid item xs={12} sm={12} md={8}>
           <Card>
             <CardHeader color="primary" bg="#483D8B" styles="15" mar="0">
               <h2 className={classes.cardTitleWhite}>THÔNG TIN CHUYẾN ĐI</h2>
@@ -186,9 +186,10 @@ class ReceiveRequestView extends React.Component {
               </div>
             </CardBody>
           </Card>
-        </GridItem>
-        <GridItem xs={0} sm={0} md={2} />
-      </GridContainer>
+        </Grid>
+        <Grid item xs={false} sm={false} md={2} >
+        </Grid>
+      </Grid>
     );
   }
 }

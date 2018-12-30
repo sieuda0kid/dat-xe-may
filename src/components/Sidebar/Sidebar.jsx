@@ -11,7 +11,6 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import Icon from "@material-ui/core/Icon";
 import Logout from "@material-ui/icons/ExitToApp";
-import HeaderLinks from "../../components/Header/HeaderLinks.jsx";
 import sidebarStyle from "../../assets/jss/material-dashboard-react/components/sidebarStyle.jsx";
 const Sidebar = ({ ...props }) => {
   function activeRoute(routeName) {

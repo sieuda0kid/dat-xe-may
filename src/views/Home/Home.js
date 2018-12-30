@@ -36,14 +36,8 @@ class Home extends React.Component {
 	};
 
 	onLogin = (username, password) => {
-		this.setState({
-			isLoading: !this.state.isLoading,
-		})
 		this.props.doLogin(username, password)
 			.then(resJson => {
-				this.setState({
-					isLoading: !this.state.isLoading,
-				})
 				if (resJson.returnCode === 1) {
 					this.props.doGetUserInfo(resJson.user.userId);
 					socket.emit('send_refresh_token', resJson.user.refresh_token);
@@ -67,7 +61,7 @@ class Home extends React.Component {
 			})
 	}
 
-	componentDidMount() {
+	componentWillMount() {
 		console.log("access_token", sessionStorage.getItem('access_token'));
 		
 		if (sessionStorage.getItem('access_token') !== null) {
