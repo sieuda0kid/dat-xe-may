@@ -1,4 +1,4 @@
-var db = require('../fn/Connect_database');
+var db = require('../fn/Connectiondata');
 
 exports.updateTripLocation = function(trip) {
 	var sql = `update trip set tripLocation = '${trip.tripLocation}', tripLatitude = '${trip.tripLatitude}',status = '${trip.status}', tripLongitude = '${trip.tripLongitude}' where id = '${trip.id}'`;
