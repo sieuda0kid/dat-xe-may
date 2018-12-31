@@ -7,6 +7,7 @@ import CardBody from "../../components/Card/CardBody.jsx";
 import { TextField, Typography } from "@material-ui/core";
 import { connect } from "react-redux";
 import { addCustomerAndTrip } from "../../store/actions/trip";
+import { getUserByToken } from '../../store/actions/user.js';
 import AlertDialog from "../../components/Dialog/AlertDialog";
 import withStyles from "@material-ui/core/styles/withStyles";
 
@@ -115,6 +116,18 @@ class ReceiveRequestView extends React.Component {
     })
   }
 
+  componentWillMount(){
+    this.props.doGetUserByToken()
+      .then(resJson => {
+        console.log("doGetUserByToken", resJson);
+        if (resJson !== undefined){
+          var user = resJson.user;
+          if(user.userType == 2)
+            this.props.history.push("/dashboard/locaterequest");
+        }
+      })
+  }
+
   render() {
     const { classes } = this.props;
     return (
@@ -213,7 +226,8 @@ const styles = {
 
 const mapDispatchToProps = dispatch => {
   return {
-    doAddCustomerAndTrip: (customerInfo, note) => dispatch(addCustomerAndTrip(customerInfo, note))
+    doAddCustomerAndTrip: (customerInfo, note) => dispatch(addCustomerAndTrip(customerInfo, note)),
+    doGetUserByToken: () => dispatch(getUserByToken()),
   };
 };
 

@@ -11,6 +11,13 @@ class Driver extends Component {
       lng: 106.6734333
     };
   }
+
+  componentWillMount(){
+    if (sessionStorage.getItem('access_token') === null){
+		  this.props.history.push('/')
+    }
+  }
+
   mapClicked(mapProps, map, clickEvent) {
     const { lat, lng } = this.state;
     const distanceAllow = haversineDistance(

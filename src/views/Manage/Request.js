@@ -2,6 +2,7 @@ import React from "react";
 import Table from "../../components/Table/Table.jsx";
 import { connect } from "react-redux";
 import { getAllTrip } from "../../store/actions/trip";
+import { getUserByToken } from '../../store/actions/user.js';
 import io from 'socket.io-client';
 const socket = io('http://localhost:8888')
 
@@ -26,6 +27,21 @@ class ManageRequestView extends React.Component {
     };
 
     socket.on('server_send_trip', (data) => this.onReciveData(data));
+  }
+
+  componentWillMount(){
+    this.props.doGetUserByToken()
+      .then(resJson => {
+        console.log("doGetUserByToken", resJson);
+        if (resJson !== undefined){
+          var user = resJson.user;
+          this.setState({userType: user.userType});
+          if(user.userType == 2)
+            this.props.history.push("/dashboard/locaterequest");
+          else if(user.userType == 1)
+            this.props.history.push("/dashboard/receiverequest");
+        }
+      })
   }
 
   componentDidMount(){
@@ -60,7 +76,8 @@ class ManageRequestView extends React.Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    doGetAllTrip: () => dispatch(getAllTrip())
+    doGetAllTrip: () => dispatch(getAllTrip()),
+    doGetUserByToken: () => dispatch(getUserByToken()),
   };
 };
 

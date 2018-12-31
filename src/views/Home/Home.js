@@ -19,11 +19,8 @@ class Home extends React.Component {
 		this.state = {
 			username: '',
 			password: '',
-
 			loginError: '',
 			userType: -1,
-
-			isLoading: false,
 		};
 	}
 
@@ -44,11 +41,10 @@ class Home extends React.Component {
 						loginError: '',
 						userType: resJson.user.userType,
 					})
-					if (resJson.user.userType !== 4) {
+					if (resJson.user.userType !== 4)
 						this.props.history.push('/dashboard')
-					} else {
-						this.props.history.push('/driver')
-					}
+					else
+						this.props.history.push('/driver');
 				} else {
 					this.setState({
 						loginError: 'Tài khoản hoặc mật khẩu không chính xác'
@@ -61,8 +57,6 @@ class Home extends React.Component {
 	}
 
 	componentWillMount() {
-		console.log("access_token", sessionStorage.getItem('access_token'));
-		
 		if (sessionStorage.getItem('access_token') !== null) {
 			this.props.history.push('/dashboard')
 		}
@@ -73,7 +67,7 @@ class Home extends React.Component {
 		return (
 			<Grid container space={0}>
 				<Grid item xs={12} sm={12} md={12}>
-					<Header/>
+					<Header />
 				</Grid>
 				<Grid item xs={12} sm={12} md={12} className={classes.root}>
 					<img src={TopHomeView} alt="TopHomeView" className={classes.img} />
@@ -96,13 +90,13 @@ class Home extends React.Component {
 						{this.state.loginError !== ''
 							?
 							<Typography className={classes.error}>
-							<span style={{color: "red", fontSize: 25, fontWeight: 900}}>* </span>
-							{this.state.loginError}
-							<span style={{color: "red", fontSize: 25, fontWeight: 900}}> *</span>
+								<span style={{ color: "red", fontSize: 25, fontWeight: 900 }}>* </span>
+								{this.state.loginError}
+								<span style={{ color: "red", fontSize: 25, fontWeight: 900 }}> *</span>
 							</Typography>
-						: null}
+							: null}
 						<Button variant="contained" color="primary" className={classes.button}
-						onClick={()=>this.onLogin(this.state.username, this.state.password)}
+							onClick={() => this.onLogin(this.state.username, this.state.password)}
 						>
 							Đăng nhập
       					</Button>
@@ -150,10 +144,10 @@ class Home extends React.Component {
 					</div>
 				</Grid>
 				<Grid item xs={12} sm={12} md={12}>
-					<Footer/>
+					<Footer />
 				</Grid>
 			</Grid>
-			
+
 		)
 	}
 }
@@ -257,6 +251,6 @@ const mapDispatchToProps = dispatch => {
 		doGetUserInfo: (id) => dispatch(getUserInfo(id)),
 		doLogin: (username, password) => dispatch(login(username, password))
 	};
-  };
-  
-  export default withStyles(styles)(connect(null, mapDispatchToProps)(Home));
+};
+
+export default withStyles(styles)(connect(null, mapDispatchToProps)(Home));

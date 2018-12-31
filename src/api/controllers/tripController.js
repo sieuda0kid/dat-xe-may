@@ -140,7 +140,7 @@ exports.updateTripStatus = function(req,res) {
                 tripLocation:lo,
                 tripLongitude:lng,
                 tripLatitude:lat,
-                status:0,
+                status:1,
                 note: req.body.note,
                 requestTime:moment().format('x'),
                 isDelete:0
@@ -189,11 +189,38 @@ exports.updateTripStatus = function(req,res) {
  });
 }
 
-
 //Lay chuyen di theo trang thai
 exports.getTripByStatus=function(req,res){
     var c=req.body;
     tripRepo.getTripByStatus(c)
+    .then(rows=>{
+        if(rows.length>0)
+        {
+           res.json({
+            returnCode:1,
+            message:" lấy danh sách trip thành công!",
+            object:rows
+        })
+       }else {
+           res.json({
+            returnCode:0,
+            message:" khong co trip nao!",
+            object:rows
+        })
+       }
+   })
+    .catch(err=>{
+        res.json({
+            returnCode:0,
+            message:"lấy danh sách trip thất bại!",
+            error:err
+        });
+    })
+}
+
+exports.getTripNonLocation=function(req,res){
+    var c=req.body;
+    tripRepo.getTripNonLocation()
     .then(rows=>{
         if(rows.length>0)
         {

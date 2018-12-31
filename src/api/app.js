@@ -35,8 +35,6 @@ app.get('/', (req, res) => {
     
 })
 
-app.use('/user', require("./router/userRouter.js"));
-
 var port = process.env.port || 8888;
 var server = app.listen(port, () => {
     console.log(`api running on port ${port}`);
@@ -54,8 +52,10 @@ io.on('connection', function (socket) {
     arr.push(socket);
     socket.driver_status=1;
     socket.premission=true;
+    
     socket.on('disconnect', function(){
-        console.log("$$$$$$$$$$$$$$$ USER : [ "+socket.user.username+" ] VUA OFFlINE");
+        if(socket.user.username !== undefined)
+            console.log("user : [ "+socket.user.username+" ] VUA OFFlINE");
         if(socket.user.userType===4)
         {
             userRepos.updateStausDriver(socket.user.id,3).then(data=>{}).catch(err=>{console.log(err)});
@@ -106,9 +106,6 @@ io.on('connection', function (socket) {
         arrRequest.push(data);
         driver.driverRefuseRequest(socket,data,arrDriver,arrRequest);
     });
-    // socket.on("accept_request",function(data){
-    //     arrRequest.splice(arrRequest.indexOf(data),1);
-    // });
     socket.on("send_refresh_token",function(data){
         console.log("nhan duoc send_refresh_token "+data);
         if(data===null || data.length===0)
@@ -119,8 +116,9 @@ io.on('connection', function (socket) {
             .then(rows=>{
                 if(rows.length>0)
                 {
+                    if(socket.user.username !== undefined)
+                    console.log("user : [ "+socket.user.username+" ] VUA ONLINE");
                     socket.user=rows[0];
-                    console.log("$$$$$$$$$$$$$$$ USER : [ "+socket.user.username+" ] VUA ONLINE");
                     if(socket.user.userType===4)
                     {
                         
@@ -128,7 +126,6 @@ io.on('connection', function (socket) {
                         userRepos.updateStausDriver(rows[0].id,1).then(data=>{}).catch(err=>{console.log(err)});
                         
                     }
-                    //console.log(rows[0]);
                 }
             })
             .catch(error=>{
@@ -157,9 +154,6 @@ app.get("/haha",(req,res)=>{
 })
 var guidata=(data,id,title)=>{
   console.log(data);
-	// console.log("id="+id);
-	// console.log("arr length ="+arr.length);
-
 	arr.map(socket=>{
 		if(socket.user.id === id)
 		{

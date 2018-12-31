@@ -56,6 +56,7 @@ export const getUserInfo = (id) => {
     return (dispatch) => {
         var access_token = sessionStorage.getItem('access_token');
         var refresh_token = sessionStorage.getItem('refresh_token');
+        console.log("get user info");
         getUserByIdApi(access_token, refresh_token, id)
             .then((responseJson) => {
                 console.log('getUserInfo api response: ', responseJson);

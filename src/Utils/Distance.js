@@ -1,3 +1,7 @@
+
+import openSocket from 'socket.io-client';
+const  socket = openSocket('http://localhost:8888');
+
 export const haversineDistance = (latlngA, latlngB, isMiles) => {
      const toRad = x => (x * Math.PI) / 180;
     var R = 6378137; //Haversine Earth’s mean radius in meter
@@ -10,3 +14,6 @@ export const haversineDistance = (latlngA, latlngB, isMiles) => {
     var d = R * c;
     return d <= 100; 
   }
+
+
+export { socket };

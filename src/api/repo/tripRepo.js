@@ -45,13 +45,23 @@ exports.getTripByTripId=function(id){
 }
 
 
-
 exports.getTripByStatus=function(c){
-    var sql = `select t.*, ta.id as statusId, ta.statusName, s.fullname as driverName, c.id as customerId, c.customerName, c.customerPhone, c.customerAddress from trip t INNER JOIN customer c ON t.customerId = c.id LEFT JOIN tripstatus ta ON t.status = ta.id LEFT JOIN staff s ON t.driverId=s.id where t.status = ${c.status}`;
+    var sql = `select t.*, ta.id as statusId, ta.statusName, s.fullname as driverName, c.id as customerId, c.customerName, c.customerPhone, c.customerAddress
+	from trip t left join staff s on t.driverId = s.id join tripstatus ta on t.status = ta.id
+	join customer c on t.customerId = c.id
+	where status = ${c.status}`;
 	console.log(sql);
 	return db.write(sql);
 }
 
+exports.getTripNonLocation=function(c){
+    var sql = `select t.*, ta.id as statusId, ta.statusName, s.fullname as driverName, c.id as customerId, c.customerName, c.customerPhone, c.customerAddress
+	from trip t left join staff s on t.driverId = s.id join tripstatus ta on t.status = ta.id
+	join customer c on t.customerId = c.id
+	where status = 1 or status = 2`;
+	console.log(sql);
+	return db.write(sql);
+}
 
 
 exports.addTrip=function(trip){

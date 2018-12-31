@@ -4,7 +4,7 @@ import GridContainer from "../../components/Grid/GridContainer";
 import GridItem from "../../components/Grid/GridItem";
 // import Button from "components/CustomButtons/Button.jsx";
 import UserProfile from "../../components/UserProfile/UserProfile";
-import { getUserForType } from "../../store/actions/user";
+import { getUserForType, getUserByToken } from "../../store/actions/user";
 import { connect } from "react-redux";
 
 
@@ -20,22 +20,40 @@ class ManageStaff extends React.Component {
     this.state = {
       tableTitleSecondary: '',
       tableData: [],
+      userType: '',
       userInfo: null,
     };
   }
-
-  componentDidMount(){
-    this.props.doGetUserForType(1)
-    .then(resJson => {
-      console.log('resJson', resJson);
-      this.setState({
-        tableData: resJson.object,
-        userInfo: resJson.object[0]
+  componentWillMount() {
+    this.props.doGetUserByToken()
+      .then(resJson => {
+        console.log("doGetUserByToken", resJson);
+        if (resJson !== undefined) {
+          var user = resJson.user;
+          this.setState({ userType: user.userType });
+          if (user.userType == 2)
+            this.props.history.push("/dashboard/locaterequest");
+          else if (user.userType == 1)
+            this.props.history.push("/dashboard/receiverequest");
+        }
       })
-    })
-    .catch(error =>{
-      console.log('doGetUserForType error', error);
-    })
+  }
+
+  componentDidMount() {
+    if (this.state.userType === 3) {
+      this.props.doGetUserForType(1)
+        .then(resJson => {
+          console.log('resJson', resJson);
+          this.setState({
+            tableData: resJson.object,
+            userInfo: resJson.object[0]
+          })
+        })
+        .catch(error => {
+          console.log('doGetUserForType error', error);
+        })
+    }
+
   }
 
   onTableRowClick = (item) => {
@@ -59,10 +77,10 @@ class ManageStaff extends React.Component {
         </GridItem>
         <GridItem xs={12} sm={12} md={4}>
           {this.state.userInfo != null
-          ? 
-          <UserProfile userInfo={this.state.userInfo} />
-          :
-          null}
+            ?
+            <UserProfile userInfo={this.state.userInfo} />
+            :
+            null}
         </GridItem>
       </GridContainer>
     );
@@ -71,7 +89,8 @@ class ManageStaff extends React.Component {
 
 const mapDispatchToProps = dispatch => {
   return {
-    doGetUserForType: (dif) => dispatch(getUserForType(dif))
+    doGetUserForType: (dif) => dispatch(getUserForType(dif)),
+    doGetUserByToken: () => dispatch(getUserByToken()),
   };
 };
 

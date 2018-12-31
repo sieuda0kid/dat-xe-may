@@ -1,71 +1,119 @@
-import React, { Component } from 'react';
-import { Map, Marker, GoogleApiWrapper } from 'google-maps-react';
-import GridContainer from "../../components/Grid/GridContainer";
-import Card from "../../components/Card/Card.jsx";
-import CardHeader from "../../components/Card/CardHeader.jsx";
-
+import React, { Component } from "react";
+import CheckRequest from "./CheckRequest.js";
+import { connect } from "react-redux";
+import Table from "../../components/Table/Table.jsx";
+import { socket } from './../../Utils/Distance.js';
+import { getTripNonLocation } from "../../store/actions/trip";
+import { getUserByToken } from '../../store/actions/user.js';
+import io from 'socket.io-client';
+const skt = io('http://localhost:8888')
+const tableHead = [
+  { id: "id", label: "Mã chuyến đi" },
+  { id: "customerName", label: "Tên khách" },
+  { id: "customerAddress", label: "Địa chỉ đón khách " },
+  { id: "requestTime", label: "Thời gian", type: "time" },
+  { id: "note", label: "Ghi chú" },
+  { id: "driverName", label: "Tài xế" },
+  { id: "statusName", label: "Tình trạng" }
+];
 class Request extends Component {
   constructor(props) {
-    super(props)
-    const {history}= this.props
-    // const infoTrip = history.location.state.infoTrip
-    
+    super(props);
     this.state = {
-      // address:infoTrip.customerAddress,
-      // lat: infoTrip.tripLatitude,
-      // lng:infoTrip.tripLongitude
-      address: "",
-      lat: "",
-      lng: "",
+      tableTitle: "",
+      tableTitleSecondary: "",
+      tableData: [],
+      open: false,
+      infoTrip: {},
+      userType: '',
+    };
+  }
+  componentWillMount() {
+    this.props.doGetUserByToken()
+      .then(resJson => {
+        console.log("doGetUserByToken", resJson);
+        if (resJson !== undefined) {
+          var user = resJson.user;
+          this.setState({ userType: user.userType });
+          if (user.userType == 1)
+            this.props.history.push("/dashboard/receiverequest");
+        }
+      })
+  }
+  componentDidMount() {
+    if (this.state.userType != 1) {
+      skt.on("server_send_trip", (data) => {
+        this.props
+          .DogetTripNonLocation()
+          .then(resJson => {
+            this.setState({
+              tableData: resJson.object
+            });
+          })
+          .catch(error => {
+            console.log("get trip error");
+          });
+      })
+      this.props
+        .DogetTripNonLocation()
+        .then(resJson => {
+          this.setState({
+            tableData: resJson.object
+          });
+        })
+        .catch(error => {
+          console.log("get trip error");
+        });
     }
   }
-  mapClicked(mapProps, map, clickEvent) {
+  _closeDialog = () => {
     this.setState({
-      lat: clickEvent.latLng.lat(),
-      lng: clickEvent.latLng.lng()
+      open: false
     })
   }
-  componentDidMount(){
-    console.log("history: "+ history.location.state);
-  }
-  render() {
-    const { lat, lng } = this.state
 
+  render() {
+    const { open, infoTrip } = this.state;
     return (
-      <GridContainer >
-        <Card>
-          <CardHeader color="primary">
-            <h2>THÔNG TIN ĐỊA CHỈ: {this.state.address}</h2>
-          </CardHeader>
-          <div style={{ flex: 1, height: window.innerHeight }}>
-            <Map
-              google={this.props.google}
-              zoom={14}
-              initialCenter={{
-                lat: lat,
-                lng: lng
-              }}
-              gestureHandling={'cooperative'}
-              style={styles.mapStyle}
-              onClick={this.mapClicked.bind(this)}
-            >
-              <Marker onClick={() => { alert(1) }}
-                name={'Current location'}
-                position={{ lat: lat, lng: lng }}
-              />
-            </Map>
-          </div>
-        </Card>
-      </GridContainer>
+      <div>
+        <Table
+          tableTitle={"DANH SÁCH CHUYẾN ĐI"}
+          tableTitleSecondary={this.state.tableTitleSecondary}
+          tableHead={tableHead}
+          tableData={this.state.tableData}
+          onTableRowClick={data => {
+            this.setState({
+              infoTrip: data
+            }, () => {
+              this.setState({
+                open: !open,
+              })
+            })
+          }}
+        />
+        {this.state.open ?
+          <CheckRequest
+            open={open}
+            infoTrip={infoTrip}
+            _closeDialog={this._closeDialog}
+          /> : null
+        }
+      </div>
     );
   }
 }
 
-const styles = {
-  mapStyle: {
-    flex: 1,paddingBottom:50
-  }
+const mapStateToProps = state => {
+  return {
+    userProfile: state.user.userProfile,
+  };
 };
-export default GoogleApiWrapper({
-  apiKey: ("AIzaSyBWvtNFhg1yB1_q8i8F0aEFdGrSh4O1rPQ")
-})(Request)
+
+const mapDispatchToProps = dispatch => {
+  return {
+    DogetTripNonLocation: () => dispatch(getTripNonLocation()),
+    doGetUserByToken: () => dispatch(getUserByToken()),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Request);

@@ -14,7 +14,7 @@ import Options from "../views/Office/Options";
 const dashboardRoutes = [
   {
     path: "/dashboard/#",
-    sidebarName: "NHÂN VIÊN",
+    sidebarName: "Quản lý",
     navbarName: "Nhân viên",
     icon: '',
     component: ReceiveRequest

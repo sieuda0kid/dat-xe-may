@@ -4,7 +4,7 @@ import GridContainer from "../../components/Grid/GridContainer";
 import GridItem from "../../components/Grid/GridItem";
 import UserProfile from "../../components/UserProfile/UserProfile";
 import { connect } from "react-redux";
-import { getUserForType } from "../../store/actions/user";
+import { getUserForType, getUserByToken } from "../../store/actions/user";
 import { getTripByDriverId } from "../../store/actions/trip";
 
 const tableDriverHead = [
@@ -29,34 +29,51 @@ class ManageDriver extends React.Component {
       tableTitleSecondary: '',
       tableDriverData: [],
       tableTripData: [],
-
+      userType: '',
       userInfo: null,
     };
   }
 
-  componentDidMount(){
-    this.props.doGetUserForType(0)
-    .then(resJson => {
-      console.log('resJson', resJson);
-      this.setState({
-        tableDriverData: resJson.object,
-        userInfo: resJson.object[0]
+  componentWillMount() {
+    this.props.doGetUserByToken()
+      .then(resJson => {
+        console.log("doGetUserByToken", resJson);
+        if (resJson !== undefined) {
+          var user = resJson.user;
+          this.setState({ userType: user.userType });
+          if (user.userType == 2)
+            this.props.history.push("/dashboard/locaterequest");
+          else if (user.userType == 1)
+            this.props.history.push("/dashboard/receiverequest");
+        }
       })
-      this.getTripByDriverId(resJson.object[0].id);
-    })
-    .catch(error =>{
-      console.log('doGetUserForType error', error);
-    })
+  }
+
+  componentDidMount() {
+    if (this.state.userType === 3) {
+      this.props.doGetUserForType(0)
+        .then(resJson => {
+          console.log('resJson', resJson);
+          this.setState({
+            tableDriverData: resJson.object,
+            userInfo: resJson.object[0]
+          })
+          this.getTripByDriverId(resJson.object[0].id);
+        })
+        .catch(error => {
+          console.log('doGetUserForType error', error);
+        })
+    }
   }
 
   getTripByDriverId = (driverId) => {
     this.props.doGetTripByDriverId(driverId)
-    .then(resJson => {
+      .then(resJson => {
 
-    })
-    .catch(error => {
-      console.log(error);
-    })
+      })
+      .catch(error => {
+        console.log(error);
+      })
   }
 
   onTableRowClick = (item) => {
@@ -80,10 +97,10 @@ class ManageDriver extends React.Component {
         </GridItem>
         <GridItem xs={12} sm={12} md={4}>
           {this.state.userInfo != null
-          ? 
-          <UserProfile userInfo={this.state.userInfo} />
-          :
-          null}
+            ?
+            <UserProfile userInfo={this.state.userInfo} />
+            :
+            null}
         </GridItem>
         <GridItem xs={12} sm={12} md={12} >
           <Table
@@ -102,6 +119,7 @@ const mapDispatchToProps = dispatch => {
   return {
     doGetUserForType: (dif) => dispatch(getUserForType(dif)),
     doGetTripByDriverId: (driverId) => dispatch(getTripByDriverId(driverId)),
+    doGetUserByToken: () => dispatch(getUserByToken()),
   };
 };
 

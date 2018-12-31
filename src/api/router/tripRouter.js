@@ -19,6 +19,9 @@ router.route('/getAllTrip')
 router.route('/getTripByStatus')
 .post(token.checkAccessToken,tripCtrl.getTripByStatus);
 
+router.route('/getTripNonLocation')
+.post(token.checkAccessToken,tripCtrl.getTripNonLocation);
+
 router.route('/addCustomerAndTrip')
 .post(token.checkAccessToken,tripCtrl.addCustomerAndTrip);
 module.exports = router;

@@ -15,7 +15,7 @@ exports.generateToken = function(user){
         user:user
     }
     return token = jwt.sign(user_token, "token", {
-        expiresIn: 60*30 // expires in 1 week
+        expiresIn: 60*30 // 30 phút
     });
 }
     // tao chuoi refeshToken
@@ -58,7 +58,7 @@ var createNewToken=function(ref_token,req,res,next){
 }
 
 // kiem tra token cua user co hop le khong
-var arr=["abc"];
+var arr=[];
 exports.checkAccessToken = function(req,res,next){
     var token=req.body.access_token;
     var ref_token=req.body.refresh_token.toString();
@@ -70,10 +70,8 @@ exports.checkAccessToken = function(req,res,next){
                   var check=arr.indexOf(token);
                   if(check>0)
                   {
-                    res.json({
-                      returnCode:0,
-                      msg:'token jwt expired'
-                    });
+                    console.log("jwt expired");
+                    createNewToken(ref_token,req,res,next);
                   }else{
                     arr.push(token);
                     console.log("jwt expired");
