@@ -16,21 +16,34 @@ import InfoTripModal from "./InfoTripModal";
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
+import { getUserByToken } from '../../store/actions/user.js';
+import {connect} from 'react-redux';
+import io from 'socket.io-client';
+const socket = io('http://localhost:8888')
 class Driver extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      lat: 10.7629123,
-      lng: 106.6734333,
+      lat: 10.823099,
+      lng: 106.629664,
       invisible: false,
       open: false,
+      user: null,
     };
   }
 
   componentWillMount() {
-    // if (sessionStorage.getItem('access_token') === null){
-    //   this.props.history.push('/')
-    // }
+    if (sessionStorage.getItem('access_token') === null){
+      this.props.history.push('/')
+    } else {
+      this.props.doGetUserByToken()
+      .then(resJson => {
+        if (resJson !== undefined) {
+          var user = resJson.user;
+          this.setState({ user: user });
+        }
+      })
+    }
   }
 
   mapClicked(mapProps, map, clickEvent) {
@@ -51,6 +64,7 @@ class Driver extends Component {
   }
   ExitClick = () => {
     sessionStorage.removeItem("access_token");
+    socket.emit("driver_offline",this.state.user);
     this.props.history.push("/");
   };
 
@@ -58,8 +72,16 @@ class Driver extends Component {
     this.setState({open: !this.state.open});
   }
 
+  SendLocation = () => {
+
+  }
+
   handleBadgeVisibility = () => {
     this.setState(prevState => ({ invisible: !prevState.invisible }));
+    if(this.state.invisible)
+      socket.emit("driver_online",this.state.user);
+    else
+    socket.emit("driver_offline",this.state.user);
   };
   render() {
     const { lat, lng, invisible } = this.state;
@@ -124,7 +146,7 @@ class Driver extends Component {
             <Button onClick={() => {this.OpenClick()}} color="primary">
               Hủy
             </Button>
-            <Button onClick={() => {this.OpenClick()}} color="primary">
+            <Button onClick={() => {this.SendLocation()}} color="primary">
               Hoàn tất
             </Button>
           </DialogActions>
@@ -229,6 +251,11 @@ const styles = theme => ({
   }
 });
 
+const mapDispatchToProps = dispatch => {
+  return {
+    doGetUserByToken: () => dispatch(getUserByToken()),
+  };
+};
 export default GoogleApiWrapper({
   apiKey: "AIzaSyBWvtNFhg1yB1_q8i8F0aEFdGrSh4O1rPQ"
-})(withStyles(styles)(Driver));
+})(withStyles(styles)(connect(null, mapDispatchToProps)(Driver)));

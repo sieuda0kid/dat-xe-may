@@ -1,5 +1,6 @@
 var userRepos=require('../repo/userRepo.js');
 var tripRepos=require('../repo/tripRepo.js');
+var app = require('../app.js');
 var rad = function(x) {
   return x * Math.PI / 180;
 };
@@ -67,8 +68,6 @@ var send_request=function(soket_driver,request,check)
     })
 }
 
-
-
 exports.sendRequestForDriver=function(socket,requestLocation,arrDriver){
     var arrDistance=[];
     var arrDistance=getListDistance(arrDriver,requestLocation);
@@ -135,8 +134,7 @@ exports.beginTrip=function(socket,data){
     }).catch(err=>{console.log(err)});
 }
 
-
-exports.updateStatusRequestWithDriver=function(socket,requestLocation,arrDriver){
+exports.updateStatusRequestWithDriver=function(data,requestLocation,arrDriver){
    var arrDistance=[];
    var arrDistance=getListDistance(arrDriver,requestLocation);
    tripRepos.updateStatusRequestWithDriver(data).then(data=>{}).catch(err=>{console.log(err)});
@@ -149,15 +147,12 @@ exports.driverOnline=function(socket,data,arrDriver){
     userRepos.updateStausDriver(socket.user.id,1).then(data=>{}).catch(err=>{console.log(err)});
 }
 
-
-
 exports.driverOffline=function(socket,data,arrDriver){
     arrDriver.map(e=>{
         if(e.user.id===socket.user.id){e.driver_status=3;}
     })
-    userRepos.updateStausDriver(socket.user.id,3).then(data=>{}).catch(err=>{console.log(err)});
+    userRepos.updateStatusDriver(socket.user.id,3).then(data=>{}).catch(err=>{console.log(err)});
 }
-
 
 exports.updateDoneLocation=function(data,socket){
     tripRepos.updateTripStatus(data,2).then(res=>{

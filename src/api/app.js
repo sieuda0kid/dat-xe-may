@@ -5,7 +5,7 @@ var app = express();
 var cors =  require('cors');
 var userRepos=require('./repo/userRepo.js');
 var driver=require('./controllers/driverController.js');
-
+var tripRepos = require('./repo/tripRepo.js');
 
 
 app.use(morgan('dev'));
@@ -51,6 +51,7 @@ var server = app.listen(port, () => {
 var arr=[];
 var arrDriver=[];
 var arrRequest=[];
+var sk;
 var io = require('socket.io').listen(server);
 io.on('connection', function (socket) {
     socket.user={id:0};
@@ -65,9 +66,8 @@ io.on('connection', function (socket) {
         if(socket.user.userType===4)
         {
             if(socket.driver_status!=2){
-                userRepos.updateStausDriver(socket.user.id,3).then(data=>{}).catch(err=>{console.log(err)});
+                userRepos.updateStatusDriver(socket.user.id,3).then(data=>{}).catch(err=>{console.log(err)});
              } 
-            //userRepos.updateStausDriver(socket.user.id,3).then(data=>{}).catch(err=>{console.log(err)});
         }
         if(socket.user.id!=0){
             arr.splice(arr.indexOf(socket.id),1);
@@ -76,19 +76,29 @@ io.on('connection', function (socket) {
        
 
     });
+
+    socket.on("guidata", (data)=>{
+        guidata(data,data.id,data.title)
+    })
+
     socket.on("location_driver",function(data){
+        console.log("location driver")
         if(socket.user.userType===4){
             socket.location=data;
         }
     });
     socket.on("driver_online",function(data){
+        console.log("driver change status online");
         if(socket.user.userType===4){
-            driver.driverOnline(socket,data,arrDriver);
+            getSocket(data);
+            driver.driverOnline(arr[sk],data,arrDriver);
         }
     });
     socket.on("driver_offline",function(data){
-        if(socket.user.userType===4){
-            driver.driverOffline(socket,data,arrDriver);
+        console.log("driver change status offline");
+        if(data.userType===4){
+            getSocket(data);
+            driver.driverOffline(arr[sk],data,arrDriver);
         }
     });
     socket.on("begin_trip",function(data){
@@ -131,12 +141,13 @@ io.on('connection', function (socket) {
             .then(rows=>{
                 if(rows.length>0)
                 {
+                    console.log("refresh token 1");
                     if(socket.user.username !== undefined)
                     console.log(" user : [ "+socket.user.username+"("+socket.id+")"+" ] ONLINE");
-                    //console.log("user : [ "+socket.user.username+" ] VUA ONLINE");
                     socket.user=rows[0];
                     if(socket.user.userType===4)
                     {
+                        console.log("refresh token 2");
                         arrDriver.push(socket);
                         userRepos.getDriverByRefreshToken(data)
                         .then(result=>{
@@ -144,13 +155,10 @@ io.on('connection', function (socket) {
                                socket.driver_status=2;
                             }else {
                                 socket.driver_status=1;
-                                userRepos.updateStausDriver(rows[0].id,1).then(data=>{}).catch(err=>{console.log(err)});
+                                userRepos.updateStatusDriver(rows[0].id,1).then(data=>{}).catch(err=>{console.log(err)});
                             }
                         })
                         .catch(err=>console.log(err))
-                        // arrDriver.push(socket);
-                        // userRepos.updateStausDriver(rows[0].id,1).then(data=>{}).catch(err=>{console.log(err)});
-                        
                     }
                 }
             })
@@ -179,12 +187,12 @@ app.get("/haha",(req,res)=>{
    
 })
 var guidata=(data,id,title)=>{
-  console.log(data);
 	arr.map(socket=>{
-		if(socket.user.id === id)
-		{
+        if(socket.user !== undefined)
+		    if(socket.user.id === id)
+		    {
             socket.emit(title,data);
-        }
+            }
     });
 }
 var guidataForType=(data,title)=>{
@@ -202,6 +210,14 @@ var sendUpdate=(data,title)=>{
       console.log(err);
     })
   }
+var getSocket = (data) =>{
+    arr.map((socket, key)=>{
+        if(socket.user !== undefined)
+            if(socket.user.id === data.id)
+                sk = key;
+    });
+}
+
 module.exports.arrDriver=arrDriver;
 module.exports.sendUpdate=sendUpdate;
 module.exports.guidata=guidata;

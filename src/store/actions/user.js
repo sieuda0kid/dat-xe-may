@@ -3,7 +3,6 @@ import {
     loginApi, getUserByTokenApi, getUserByIdApi, getUserForTypeApi
 } from '../../api/AppApi';
 var md5 = require('md5');
-
 export const login = (username, password) => {
     return (dispatch) => {
         const promise = new Promise((resolve, reject) => {

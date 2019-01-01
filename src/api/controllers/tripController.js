@@ -32,8 +32,6 @@ exports.getTripByDriverId=function(req,res){
     })
 }
 
-
-
 //update trang thai chuyen di
 exports.updateTripLocation = function(req,res) {
     var c=req.body;
@@ -52,8 +50,6 @@ exports.updateTripLocation = function(req,res) {
         });
     });
 }
-
-
 
 
 // lay tat ca cac chuyen
@@ -77,8 +73,6 @@ exports.getAllTrip=function(req,res){
         });
     });
 }
-
-
 
 // trang thai chuyen di
 exports.updateTripStatus = function(req,res) {
@@ -107,8 +101,6 @@ exports.updateTripStatus = function(req,res) {
         });
     })
  }
-
-
 
 
 //them khach va chuyen di

@@ -22,7 +22,11 @@ exports.loadOnebyType = function(type) {
 	return db.load(sql);
 }
 
-
+exports.getDriverByRefreshToken = function(reToken) {
+	var sql = `select * from staff st ,token tk,driver v where tk.refresh_token = '${reToken}' and st.id=tk.id_user and st.id=v.staffId`;
+	console.log(sql);
+	return db.load(sql);
+}
 
 exports.loadForType = function(difriend) {
 	if(difriend===0)
@@ -48,13 +52,11 @@ exports.getUserByRefreshToken = function(reToken) {
 
 
 
-
 exports.login = function(c) {
 	var sql = `select * from staff where username = '${c.username}' and password = '${c.password}'`;
 	console.log(sql);
 	return db.load(sql);
 }
-
 
 
 exports.add = function(c) {
