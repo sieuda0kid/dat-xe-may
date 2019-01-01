@@ -27,6 +27,14 @@ exports.generateToken = function(user){
           return str+us;
     }
 
+    var generateTokens = function(user) {
+        var user_token={
+            user:user
+        }
+        return token = jwt.sign(user_token, process.env.JWT_SECRET, {
+            expiresIn: 60*20 // expires in 1 week
+        });
+    }
 var createNewToken=function(ref_token,req,res,next){
     tokenRepo.getRefreshTokenByToken(ref_token)
     .then(rows => {

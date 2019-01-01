@@ -51,7 +51,7 @@ var send_request=function(soket_driver,request,check)
 
     	soket_driver.on("accept_request",function(data){
             if(soket_driver.premission===true){
-            console.log(`===========> Driver ${soket_driver.user.username} đã chấp nhận chuyến đy`);
+            console.log(`===========> Driver ${soket_driver.user.username} đã chấp nhận chuyến đi`);
            clearTimeout(action);
            thoi_han=true
            resolve(thoi_han);
@@ -59,7 +59,7 @@ var send_request=function(soket_driver,request,check)
         });
         soket_driver.on("destroy_request",function(data){
             soket_driver.premission=false;
-           console.log(`===========> Driver ${soket_driver.user.username} đã chấp nhận chuyến đy`);
+           console.log(`===========> Driver ${soket_driver.user.username} đã chấp nhận chuyến đi`);
            clearTimeout(action);
            thoi_han=true
            reject(thoi_han);
@@ -82,7 +82,9 @@ exports.sendRequestForDriver=function(socket,requestLocation,arrDriver){
                 var action=setTimeout(function(){
                     if(t==arrDistance.length)
                     {
-                        tripRepos.updateTripStatus(requestLocation.id,7).then(data=>{}).catch(err=>{console.log(err)});
+                        tripRepos.updateTripStatus(requestLocation.id,7).then(data=>{
+                            app.sendUpdate(requestLocation.id,"update_status_trip");
+                       }).catch(err=>{console.log(err)});
                         tt=1;
                     }
                     if(tt==0)
@@ -95,10 +97,15 @@ exports.sendRequestForDriver=function(socket,requestLocation,arrDriver){
                                 if(e.user.id===arrDistance[t].user.id){e.driver_status=2;}
                             })
                             
-                            tripRepos.updateDriverId(requestLocation.id,arrDistance[t].user.id).then(data=>{}).catch(err=>{console.log(err)});
-                            tripRepos.updateTripStatus(requestLocation.id,6).then(data=>{}).catch(err=>{console.log(err)});
-                            userRepos.updateStausDriver(arrDistance[t].user.id,2).then(data=>{}).catch(err=>{console.log(err)});
-                            tt=1;
+                            tripRepos.updateDriverId(requestLocation.id,arrDistance[t].user.id).then(data=>{
+                                app.sendUpdate(requestLocation.id,"update_status_trip");
+                            }).catch(err=>{console.log(err)});
+                           
+     						tripRepos.updateTripStatus(requestLocation.id,6).then(data=>{
+                                app.sendUpdate(requestLocation.id,"update_status_trip");
+                            }).catch(err=>{console.log(err)});
+     						userRepos.updateStausDriver(arrDistance[t].user.id,2).then(data=>{}).catch(err=>{console.log(err)});
+     						tt=1;
                         })
                         .catch(err=>{
                             console.log(err);
@@ -114,14 +121,18 @@ exports.sendRequestForDriver=function(socket,requestLocation,arrDriver){
 
 }
 exports.endTrip=function(socket,data,arrDriver){
-   tripRepos.updateTripStatus(data.id,5).then(data=>{}).catch(err=>{console.log(err)});
-   arrDriver.map(e=>{
-       if(e.user.id===socket.user.id){e.driver_status=1;}
-   })
-   userRepos.updateStausDriver(socket.user.id,1).then(data=>{}).catch(err=>{console.log(err)});
+	tripRepos.updateTripStatus(data.id,5).then(res=>{
+        app.sendUpdate(data.id,"update_status_trip");
+    }).catch(err=>{console.log(err)});
+	arrDriver.map(e=>{
+		if(e.user.id===socket.user.id){e.driver_status=1;}
+	})
+	userRepos.updateStausDriver(socket.user.id,1).then(data=>{}).catch(err=>{console.log(err)});
 }
 exports.beginTrip=function(socket,data){
-   tripRepos.updateTripStatus(data.id,4).then(data=>{}).catch(err=>{console.log(err)});
+	tripRepos.updateTripStatus(data.id,4).then(res=>{
+        app.sendUpdate(data.id,"update_status_trip");
+    }).catch(err=>{console.log(err)});
 }
 
 
@@ -145,4 +156,11 @@ exports.driverOffline=function(socket,data,arrDriver){
         if(e.user.id===socket.user.id){e.driver_status=3;}
     })
     userRepos.updateStausDriver(socket.user.id,3).then(data=>{}).catch(err=>{console.log(err)});
+}
+
+
+exports.updateDoneLocation=function(data,socket){
+    tripRepos.updateTripStatus(data,2).then(res=>{
+        app.sendUpdate(data,"update_status_trip");
+    }).catch(err=>{console.log(err)});
 }
