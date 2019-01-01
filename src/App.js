@@ -4,9 +4,9 @@ import Dashboard from './layouts/Dashboard/Dashboard';
 import Home from './views/Home/Home';
 import DriverView from './views/Driver/driver'
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
+import io from 'socket.io-client';
 import { getUserByToken } from './store/actions/user';
 import { connect } from "react-redux";
-import io from 'socket.io-client';
 const socket = io('http://localhost:8888')
 
 class App extends Component {
@@ -40,7 +40,6 @@ class App extends Component {
         }
       })
     }
-    console.log("userprofile: "+this.state.user);
   }
 
   render() {
@@ -71,7 +70,7 @@ class App extends Component {
             <Route path={"/dashboard"} component={Dashboard} />
             <Route path={"/driver"} component={DriverView} />
             <Route path={"/home"} component={Home} />
-            <Route path={"/"} component={Home} />
+            <Route exact path={"/"} component={Home} />
           </Switch>
         </MuiThemeProvider>
       );

@@ -48,10 +48,16 @@ class TableToolbar extends React.Component {
 
       <Toolbar className={classNames(classes.root)}>
         <div className={classes.title}>
-          <Typography id="tableTitle">
-            <div className={classes.tableTitle}>{tableTitle}</div>
-            <div className={classes.tableTitleSecondary}>{tableTitleSecondary}</div>
-          </Typography>
+          <div className={classes.tableTitle}>
+            <Typography id="tableTitle">
+              {tableTitle}
+            </Typography>
+          </div>
+          <div className={classes.tableTitleSecondary}>
+            <Typography id="tableTitle">
+              {tableTitleSecondary}
+            </Typography>
+          </div>
         </div>
         {this.props.children}
         <div className={classes.actions}>
@@ -79,13 +85,13 @@ TableToolbar.propTypes = {
 
 const mapStateToProps = state => {
   return {
-    
+
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    
+
   };
 };
 export default withStyles(toolbarStyles)(connect(mapStateToProps, mapDispatchToProps)(TableToolbar));

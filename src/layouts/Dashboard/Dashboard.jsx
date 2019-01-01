@@ -1,4 +1,3 @@
-
 import React from "react";
 import PropTypes from "prop-types";
 import { Switch, Route, Redirect } from "react-router-dom";
@@ -18,19 +17,18 @@ import logo from "../../assets/images/logo.png";
 const switchRoutes = (
   <Switch>
     {dashboardRoutes.map((prop, key) => {
-      if (prop.redirect) {
+      if (prop.redirect)
         return <Redirect from={prop.path} to={prop.to} key={key} />;
-      }
       return <Route exact path={prop.path} component={prop.component} key={key} />;
     })}
   </Switch>
 );
+
 class Dashboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      mobileOpen: false,
-      typeUser: '',
+      mobileOpen: false
     };
     this.resizeFunction = this.resizeFunction.bind(this);
   }
@@ -50,8 +48,9 @@ class Dashboard extends React.Component {
       const ps = new PerfectScrollbar(this.refs.mainPanel);
     }
     window.addEventListener("resize", this.resizeFunction);
-    if (sessionStorage.getItem('access_token') === null)
-      this.props.history.push('/');
+    if (sessionStorage.getItem('access_token') === null){
+      this.props.history.push('/')
+    }else{ 
       this.props.doGetUserByToken()
       .then(resJson => {
         console.log("doGetUserByToken", resJson);
@@ -64,6 +63,7 @@ class Dashboard extends React.Component {
             this.props.history.push("/dashboard/locaterequest");
         }
       })
+    }
   }
   componentDidUpdate(e) {
     if (e.history.location.pathname !== e.location.pathname) {
@@ -76,54 +76,40 @@ class Dashboard extends React.Component {
   componentWillUnmount() {
     window.removeEventListener("resize", this.resizeFunction);
   }
-
   render() {
     const { classes, ...rest } = this.props;
-
-    if (sessionStorage.getItem('access_token') !== null && this.state.user !== null) {
-
-      return (
-        <div className={classes.wrapper} style={{ backgroundColor: '#EFEFEF', marginTop: -8 }}>
-          <Sidebar
-            routes={this.state.userType == 3 ? dashboardRoutes : (this.state.userType == 2 ? RouterLocation : RouterReceive)}
-            logoText={"Tesla"}
-            logo={logo}
-            image={image}
+    return (
+      <div className={classes.wrapper} style={{backgroundColor: '#EFEFEF'}}>
+        <Sidebar
+          routes={this.state.userType == 3 ? dashboardRoutes : (this.state.userType == 2 ? RouterLocation : RouterReceive)}
+          logoText={"Tesla"}
+          logo={logo}
+          image={image}
+          handleDrawerToggle={this.handleDrawerToggle}
+          open={this.state.mobileOpen}
+          color="blue"
+          {...rest}
+        />
+        <div className={classes.mainPanel} ref="mainPanel">
+          <Header
+            routes={dashboardRoutes}
             handleDrawerToggle={this.handleDrawerToggle}
-            open={this.state.mobileOpen}
-            color="blue"
             {...rest}
           />
-          <div className={classes.mainPanel} ref="mainPanel">
-            <Header
-              routes={dashboardRoutes}
-              handleDrawerToggle={this.handleDrawerToggle}
-              {...rest}
-            />
-            {this.getRoute() ? (
-              <div className={classes.content}>
-                <div className={classes.container}>{switchRoutes}</div>
-              </div>
-            ) : (
-                <div className={classes.map}>{switchRoutes}</div>
-              )}
-          </div>
+          {this.getRoute() ? (
+            <div className={classes.content}>
+              <div className={classes.container}>{switchRoutes}</div>
+            </div>
+          ) : (
+            <div className={classes.map}>{switchRoutes}</div>
+          )}
         </div>
-      );
-    }
-
-
+      </div>
+    );
   }
 }
-
 Dashboard.propTypes = {
   classes: PropTypes.object.isRequired
-};
-
-const mapStateToProps = state => {
-  return {
-    userProfile: state.user.userProfile,
-  };
 };
 
 const mapDispatchToProps = dispatch => {
@@ -131,5 +117,4 @@ const mapDispatchToProps = dispatch => {
     doGetUserByToken: () => dispatch(getUserByToken()),
   };
 };
-
-export default withStyles(dashboardStyle)(connect(mapStateToProps, mapDispatchToProps)(Dashboard));
+export default withStyles(dashboardStyle)(connect(null, mapDispatchToProps)(Dashboard));

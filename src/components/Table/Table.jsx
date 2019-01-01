@@ -167,9 +167,13 @@ class EnhancedTable extends React.Component {
                           <Checkbox checked={isSelected} onChange={() => this.onSelectedChange(n.id)} color='default' />
                         </TableCell>
                         : null}
-                        {tableHead.map(head => {
+                        {tableHead.map((head,key) => {
                           return (
-                            <TableCell className={classes.tableCell} padding="none" style={{ textDecoration: 'none' }} component={Link} to={linkTo + n.id}>{head.type === 'time' ? moment(n[head.id]).format('DD/MM/YYYY') : n[head.id]}</TableCell>
+                            <TableCell key={key} className={classes.tableCell} padding="none"  >
+                              <Link style={{ textDecoration: 'none', color: 'black' }} to={linkTo + n.id}>  
+                                {head.type === 'time' ? moment(n[head.id]).format('DD/MM/YYYY') : n[head.id]}
+                              </Link>
+                            </TableCell>
                           );
                         })}
                       </TableRow>
