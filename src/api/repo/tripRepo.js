@@ -2,7 +2,8 @@ var db = require('../fn/mysql-db');
 
 
 exports.updateTripLocation = function(trip) {
-	var sql = `update chuyen set tripLocation = '${trip.tripLocation}', tripLatitude = '${trip.tripLat}', tripLongitude = '${trip.tripLong}' where id = '${trip.id}'`;
+	var sql = `update trip set tripLocation = '${trip.tripLocation}', tripLatitude = '${trip.tripLat}', tripLongitude = '${trip.tripLong}' where id = '${trip.id}'`;
+	console.log(sql);
 	return db.write(sql);
 }
 

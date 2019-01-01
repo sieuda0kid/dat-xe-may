@@ -93,3 +93,15 @@ export function getTripNonLocationApi(access_token, refresh_token){
     }
     return fetchApi('trip/getTripNonLocation', 'POST', body);
 }
+
+export function updateTripLocationApi(access_token, refresh_token, trip){
+    var body = {
+        access_token: access_token,
+        refresh_token: refresh_token,
+        id: trip.id,
+        tripLocation: trip.tripLocation,
+        tripLat: trip.tripLat,
+        tripLong: trip.tripLong,
+    }
+    return fetchApi('trip/updateTripLocation', 'POST', body);
+}

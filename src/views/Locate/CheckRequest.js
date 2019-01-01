@@ -5,6 +5,8 @@ import CardHeader from "../../components/Card/CardHeader.jsx";
 import Modal from "@material-ui/core/Modal";
 import { withStyles } from "@material-ui/core/styles";
 import { Button, CardContent, ClickAwayListener } from "@material-ui/core";
+import {connect} from 'react-redux';
+import {updateTripLocation} from '../../store/actions/trip.js';
 class CheckRequest extends Component {
   constructor(props) {
     super(props);
@@ -12,6 +14,7 @@ class CheckRequest extends Component {
         address: this.props.infoTrip.customerAddress,
         lat: this.props.infoTrip.tripLatitude,
         lng: this.props.infoTrip.tripLongitude,
+        id: this.props.infoTrip.id,
         openp: false,
     };
   }
@@ -29,9 +32,29 @@ class CheckRequest extends Component {
     this.setState({ open: open });
   };
 
+  ConfirmClick = () => {
+    var trip= {
+      id: this.state.id,
+      tripLocation: this.state.lat+','+this.state.lng,
+      tripLat: this.state.lat,
+      tripLong: this.state.lng,
+    };
+    
+    this.props.doUpdateTripLocation(trip)
+      .then(resJson => {
+        if(resJson.returnCode == 1)
+          this.props._confirm();
+      })
+      .catch(error =>{
+        console.log(error)
+      })
+  }
+
   render() {
     const { lat, lng } = this.state;
     const { classes, infoTrip } = this.props;
+
+    //Hiện thị chỉ đường
     const triangleCoords = [
         {lat: 10.7627345, lng: 106.6822347},
         {lat: 10.7628653, lng: 106.6826189},
@@ -62,9 +85,9 @@ class CheckRequest extends Component {
               >
               <Polyline
                 path={triangleCoords}
-                strokeColor="#0000FF"
-                strokeOpacity={0.8}
-                strokeWeight={2} />
+                strokeColor="#ff0000"
+                strokeOpacity={2}
+                strokeWeight={5} />
                 <Marker
                   onClick={() => {
                     alert(1);
@@ -91,6 +114,7 @@ class CheckRequest extends Component {
                 variant="contained"
                 color="primary"
                 style={{ fontSize: 12, color: "white", width: 120 }}
+                onClick={()=>this.ConfirmClick()}
               >
                 Xác nhận
               </Button>
@@ -109,9 +133,13 @@ const styles = theme => ({
     boxShadow: theme.shadows[5]
   }
 });
-const CheckRequestWithStyles = withStyles(styles)(
-    CheckRequest
-);
+
+
+const mapDispatchToProps = dispatch => {
+  return {
+    doUpdateTripLocation: (trip) => dispatch(updateTripLocation(trip)),
+  };
+};
 export default GoogleApiWrapper({
   apiKey: "AIzaSyBWvtNFhg1yB1_q8i8F0aEFdGrSh4O1rPQ"
-})(CheckRequestWithStyles);
+})(withStyles(styles)(connect(null, mapDispatchToProps)(CheckRequest)));

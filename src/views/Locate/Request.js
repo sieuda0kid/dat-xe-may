@@ -24,6 +24,7 @@ class Request extends Component {
       tableTitleSecondary: "",
       tableData: [],
       open: false,
+      load: false,
       infoTrip: {},
       userType: '',
     };
@@ -40,21 +41,9 @@ class Request extends Component {
         }
       })
   }
-  componentDidMount() {
-    if (this.state.userType != 1) {
-      skt.on("server_send_trip", (data) => {
-        this.props
-          .DogetTripNonLocation()
-          .then(resJson => {
-            this.setState({
-              tableData: resJson.object
-            });
-          })
-          .catch(error => {
-            console.log("get trip error");
-          });
-      })
-      this.props
+
+  loadDataTable = () => {
+    this.props
         .DogetTripNonLocation()
         .then(resJson => {
           this.setState({
@@ -64,12 +53,25 @@ class Request extends Component {
         .catch(error => {
           console.log("get trip error");
         });
+  }
+
+  componentDidMount() {
+    if (this.state.userType != 1) {
+      skt.on("server_send_trip", (data) => {
+        this.loadDataTable();
+      })
+      this.loadDataTable();
     }
   }
   _closeDialog = () => {
     this.setState({
-      open: false
+      open: false,
     })
+  }
+
+  confirm = () => {
+    this.setState({load: true});
+    this.loadDataTable();
   }
 
   render() {
@@ -87,6 +89,7 @@ class Request extends Component {
             }, () => {
               this.setState({
                 open: !open,
+                load: false,
               })
             })
           }}
@@ -96,6 +99,7 @@ class Request extends Component {
             open={open}
             infoTrip={infoTrip}
             _closeDialog={this._closeDialog}
+            _confirm={this.confirm}
           /> : null
         }
       </div>

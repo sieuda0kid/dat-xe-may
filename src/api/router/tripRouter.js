@@ -24,4 +24,8 @@ router.route('/getTripNonLocation')
 
 router.route('/addCustomerAndTrip')
 .post(token.checkAccessToken,tripCtrl.addCustomerAndTrip);
+
+router.route('/updateTripLocation')
+.post(token.checkAccessToken, tripCtrl.updateTripLocation);
+
 module.exports = router;

@@ -1,6 +1,7 @@
-import { getAllTripApi, getTripByDriverIdApi, addCustomerAndTripApi, getTripByStatusApi,
-    getTripNonLocationApi
- } from "../../api/AppApi";
+import {
+    getAllTripApi, getTripByDriverIdApi, addCustomerAndTripApi, getTripByStatusApi,
+    getTripNonLocationApi, updateTripLocationApi,
+} from "../../api/AppApi";
 
 export const getAllTrip = () => {
     return (dispatch) => {
@@ -58,34 +59,51 @@ export const addCustomerAndTrip = (customerInfo, note) => {
 
 export const getTripByStatus = statusId => {
     return dispatch => {
-      const promise = new Promise((resolve, reject) => {
-        var access_token = sessionStorage.getItem("access_token");
-        var refresh_token = sessionStorage.getItem("refresh_token");
-        getTripByStatusApi(access_token, refresh_token, statusId)
-          .then(responseJson => {
-            resolve(responseJson);
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      });
-      return promise;
+        const promise = new Promise((resolve, reject) => {
+            var access_token = sessionStorage.getItem("access_token");
+            var refresh_token = sessionStorage.getItem("refresh_token");
+            getTripByStatusApi(access_token, refresh_token, statusId)
+                .then(responseJson => {
+                    resolve(responseJson);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        });
+        return promise;
     };
-  };
+};
 
-  export const getTripNonLocation = () => {
+export const getTripNonLocation = () => {
     return dispatch => {
-      const promise = new Promise((resolve, reject) => {
-        var access_token = sessionStorage.getItem("access_token");
-        var refresh_token = sessionStorage.getItem("refresh_token");
-        getTripNonLocationApi(access_token, refresh_token)
-          .then(responseJson => {
-            resolve(responseJson);
-          })
-          .catch(error => {
-            console.log(error);
-          });
-      });
-      return promise;
+        const promise = new Promise((resolve, reject) => {
+            var access_token = sessionStorage.getItem("access_token");
+            var refresh_token = sessionStorage.getItem("refresh_token");
+            getTripNonLocationApi(access_token, refresh_token)
+                .then(responseJson => {
+                    resolve(responseJson);
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        });
+        return promise;
     };
-  };
+};
+
+export const updateTripLocation = (trip) => {
+    return dispatch => {
+        const promise = new Promise ((resolve, reject) =>{
+            var access_token = sessionStorage.getItem("access_token");
+            var refresh_token = sessionStorage.getItem("refresh_token");
+            updateTripLocationApi(access_token,refresh_token,trip)
+                .then(resJson => {
+                    resolve(resJson);
+                })
+                .catch(error =>{
+                    console.log(error);
+                })
+        });
+        return promise;
+    }
+}
