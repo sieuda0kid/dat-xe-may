@@ -167,6 +167,9 @@ class ReceiveRequestView extends React.Component {
                       value={this.state.phone}
                       onChange={this.handleChange('phone')}
                       margin="normal"
+                      inputProps={{
+                        maxLength: 10
+                      }}
                     />
                     <Typography style={{ color: 'red', fontFamily: 'Roboto-Light', fontSize: 12 }}>{this.state.phoneErrorMessage}</Typography>
                   </div>
