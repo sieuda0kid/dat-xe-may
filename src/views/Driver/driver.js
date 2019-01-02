@@ -1,10 +1,11 @@
-import React, { Component } from "react";
-import PropTypes from 'prop-types';
-import { withStyles } from '@material-ui/core/styles';
 import { Map, Marker, GoogleApiWrapper } from "google-maps-react";
+import { haversineDistance } from "../../Utils/Distance.js";
+
+import Trip from './snackBarTrip.js';
+import React, { Component } from "react";
+import { withStyles } from '@material-ui/core/styles';
 import LocationOn from "@material-ui/icons/LocationOn";
 import Exit from "@material-ui/icons/ExitToApp";
-import { haversineDistance } from "../../Utils/Distance.js";
 import { Typography, Button } from "@material-ui/core";
 import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
@@ -12,14 +13,12 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
-import InfoTripModal from "./InfoTripModal";
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import { getUserByToken } from '../../store/actions/user.js';
 import {connect} from 'react-redux';
-import io from 'socket.io-client';
-const socket = io('http://localhost:8888')
+import {socket} from '../../Utils/Distance.js';
 class Driver extends Component {
   constructor(props) {
     super(props);
@@ -84,10 +83,10 @@ class Driver extends Component {
     socket.emit("driver_offline",this.state.user);
   };
   render() {
-    const { lat, lng, invisible } = this.state;
-    const { classes } = this.props;
+    const { lat, lng , invisible} = this.state;
+    const {classes} = this.props;
     return (
-      <div style={{ marginLeft: -8 }}>
+      <div style={{marginLeft: -8}}>
         <div className={classes.Control}>
           <Button variant="contained" color="primary" className={classes.button}
           onClick={()=>{this.OpenClick()}}
@@ -151,16 +150,13 @@ class Driver extends Component {
             </Button>
           </DialogActions>
         </Dialog>
-
+        
+        
         </div>
 
         <div style={{ flex: 1, zIndex: 2 }}>
           <Map
             google={this.props.google}
-            style={{
-              flex: 1,
-              paddingBottom: 50
-            }}
             zoom={14}
             initialCenter={{
               lat: lat,
@@ -178,15 +174,11 @@ class Driver extends Component {
             />
           </Map>
         </div>
-        {/* <InfoTripModal/> */}
+        <Trip open={true}/>
       </div>
     );
   }
 }
-
-Driver.propTypes = {
-  classes: PropTypes.object.isRequired,
-};
 
 const styles = theme => ({
   Control: {
@@ -250,7 +242,6 @@ const styles = theme => ({
     },
   }
 });
-
 const mapDispatchToProps = dispatch => {
   return {
     doGetUserByToken: () => dispatch(getUserByToken()),

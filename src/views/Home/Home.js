@@ -9,7 +9,7 @@ import { connect } from "react-redux";
 import { login, getUserInfo } from "../../store/actions/user";
 import { Grid, Typography, Button } from "@material-ui/core";
 import Footer from "./../../components/Home/Footer";
-import Header from '../../components/Home/HomeHeader.jsx'
+import Header from '../../components/Home/HomeHeader.jsx';
 import io from 'socket.io-client';
 const socket = io('http://localhost:8888')
 class Home extends React.Component {
