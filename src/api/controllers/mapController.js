@@ -2,8 +2,9 @@ var mapRepo = require('../repo/mapRepo.js');
 require('dotenv').config();
 
 exports.getLatLong = function(req,res) {
+
     var address=req.body.address;
-    var stringUrl=`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${process.env.key}`;
+    var stringUrl=`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${"AIzaSyCHY7K0nxdBJ2MVMMVe46mJP8PvoezIUvc"}`;
     var url = encodeURI(stringUrl); 
     mapRepo.getMapAPI(url)
     .then(body=>{

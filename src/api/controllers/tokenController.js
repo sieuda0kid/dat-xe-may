@@ -32,8 +32,8 @@ var generateTokens = function (user) {
     var user_token = {
         user: user
     }
-    var token = jwt.sign(user_token, process.env.JWT_SECRET, {
-        expiresIn: 60 * 20 // expires in 1 week
+    var token = jwt.sign(user_token, "token", {
+        expiresIn: 60 * 30 // 30 phút
     });
     return token;
 }

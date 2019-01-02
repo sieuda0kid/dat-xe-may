@@ -1,7 +1,7 @@
 var tripCtrl=require('../controllers/tripController.js');
 var express = require('express');
 var token=require('../controllers/tokenController.js');
-
+var map = require('../controllers/mapController.js')
 var router = express.Router();
 
 router.route('/updateTrip')
@@ -27,5 +27,8 @@ router.route('/addCustomerAndTrip')
 
 router.route('/updateTripLocation')
 .post(token.checkAccessToken, tripCtrl.updateTripLocation);
+
+router.route('/getlocationdriver')
+.post(token.checkAccessToken, map.getLatLong)
 
 module.exports = router;

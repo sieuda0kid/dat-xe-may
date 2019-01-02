@@ -1,6 +1,6 @@
 import {
     getAllTripApi, getTripByDriverIdApi, addCustomerAndTripApi, getTripByStatusApi,
-    getTripNonLocationApi, updateTripLocationApi,
+    getTripNonLocationApi, updateTripLocationApi, getLocationDriverApi
 } from "../../api/AppApi";
 
 export const getAllTrip = () => {
@@ -97,6 +97,23 @@ export const updateTripLocation = (trip) => {
             var access_token = sessionStorage.getItem("access_token");
             var refresh_token = sessionStorage.getItem("refresh_token");
             updateTripLocationApi(access_token,refresh_token,trip)
+                .then(resJson => {
+                    resolve(resJson);
+                })
+                .catch(error =>{
+                    console.log(error);
+                })
+        });
+        return promise;
+    }
+}
+
+export const getLocationDriver = (address) => {
+    return dispatch => {
+        const promise = new Promise ((resolve, reject) =>{
+            var access_token = sessionStorage.getItem("access_token");
+            var refresh_token = sessionStorage.getItem("refresh_token");
+            getLocationDriverApi(access_token,refresh_token,address)
                 .then(resJson => {
                     resolve(resJson);
                 })

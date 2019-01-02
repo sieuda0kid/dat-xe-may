@@ -105,3 +105,12 @@ export function updateTripLocationApi(access_token, refresh_token, trip){
     }
     return fetchApi('trip/updateTripLocation', 'POST', body);
 }
+
+export function getLocationDriverApi(access_token,refresh_token,address){
+    var body = {
+        access_token: access_token,
+        refresh_token: refresh_token,
+        address: address,
+    }
+    return fetchApi('trip/getlocationdriver', 'POST', body);
+}

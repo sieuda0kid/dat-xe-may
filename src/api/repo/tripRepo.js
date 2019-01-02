@@ -2,7 +2,7 @@ var db = require('../fn/mysql-db');
 
 
 exports.updateTripLocation = function(trip) {
-	var sql = `update trip set tripLocation = '${trip.tripLocation}', tripLatitude = '${trip.tripLat}', tripLongitude = '${trip.tripLong}' where id = '${trip.id}'`;
+	var sql = `update trip set tripLocation = '${trip.tripLocation}', tripLatitude = '${trip.tripLat}', tripLongitude = '${trip.tripLong}', status = 2 where id = '${trip.id}'`;
 	console.log(sql);
 	return db.write(sql);
 }
@@ -59,7 +59,7 @@ exports.getTripNonLocation=function(c){
     var sql = `select t.*, ta.id as statusId, ta.statusName, s.fullname as driverName, c.id as customerId, c.customerName, c.customerPhone, c.customerAddress
 	from trip t left join staff s on t.driverId = s.id join tripstatus ta on t.status = ta.id
 	join customer c on t.customerId = c.id
-	where status = 1 or status = 2`;
+	where status = 1 or status = 2 or status = 7`;
 	console.log(sql);
 	return db.write(sql);
 }

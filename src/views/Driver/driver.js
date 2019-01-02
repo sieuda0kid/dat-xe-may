@@ -17,8 +17,9 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import { getUserByToken } from '../../store/actions/user.js';
-import {connect} from 'react-redux';
-import {socket} from '../../Utils/Distance.js';
+import { getLocationDriver } from '../../store/actions/trip.js';
+import { connect } from 'react-redux';
+import { socket } from '../../Utils/Distance.js';
 class Driver extends Component {
   constructor(props) {
     super(props);
@@ -28,20 +29,41 @@ class Driver extends Component {
       invisible: false,
       open: false,
       user: null,
+      address: '',
+      errorAdress: '',
+      error: 0,
     };
   }
 
+  checkValidation = (address) => {
+    var error = 0;
+    if (address === '') {
+      this.setState({ errorAdress: 'Địa chỉ không được để trống' })
+      error++;
+    }
+    this.setState({ error: error });
+    if (error > 0)
+      return false;
+    return true;
+  }
+
+  ValueChange = name => event => {
+    this.setState({
+      [name]: event.target.value,
+    });
+  };
+
   componentWillMount() {
-    if (sessionStorage.getItem('access_token') === null){
+    if (sessionStorage.getItem('access_token') === null) {
       this.props.history.push('/')
     } else {
       this.props.doGetUserByToken()
-      .then(resJson => {
-        if (resJson !== undefined) {
-          var user = resJson.user;
-          this.setState({ user: user });
-        }
-      })
+        .then(resJson => {
+          if (resJson !== undefined) {
+            var user = resJson.user;
+            this.setState({ user: user });
+          }
+        })
     }
   }
 
@@ -62,34 +84,64 @@ class Driver extends Component {
     }
   }
   ExitClick = () => {
+    console.log("exitttttttttttttt");
     sessionStorage.removeItem("access_token");
-    socket.emit("driver_offline",this.state.user);
+    sessionStorage.removeItem("refresh_token");
     this.props.history.push("/");
+    socket.emit("driver_offline", this.state.user);
   };
 
   OpenClick = () => {
-    this.setState({open: !this.state.open});
+    this.setState({ open: !this.state.open });
   }
 
   SendLocation = () => {
-
+    var check = this.checkValidation(this.state.address)
+    console.log("checl:" + check);
+    if (check) {
+      this.props.doGetLocationDriver(this.state.address)
+        .then(resJson => {
+          if (resJson.returnCode == 1) {
+            var location = resJson.object;
+            this.setState({
+              lat: location.lat,
+              lng: location.lng,
+              open: false,
+            });
+            var user = this.state.user;
+            user.location = location;
+            socket.emit("location_driver", user);
+          }
+          else {
+            this.setState({
+              lat: 10.823099,
+              lng: 106.629664,
+              open: false,
+              address: "Thành phố Hồ Chí Minh",
+            })
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        })
+    }
   }
 
   handleBadgeVisibility = () => {
     this.setState(prevState => ({ invisible: !prevState.invisible }));
-    if(this.state.invisible)
-      socket.emit("driver_online",this.state.user);
+    if (this.state.invisible)
+      socket.emit("driver_online", this.state.user);
     else
-    socket.emit("driver_offline",this.state.user);
+      socket.emit("driver_offline", this.state.user);
   };
   render() {
-    const { lat, lng , invisible} = this.state;
-    const {classes} = this.props;
+    const { lat, lng, invisible } = this.state;
+    const { classes } = this.props;
     return (
-      <div style={{marginLeft: -8}}>
+      <div style={{ marginLeft: -8 }}>
         <div className={classes.Control}>
           <Button variant="contained" color="primary" className={classes.button}
-          onClick={()=>{this.OpenClick()}}
+            onClick={() => { this.OpenClick() }}
           >
             <Typography className={classes.name} gutterBottom>
               Định vị
@@ -102,7 +154,7 @@ class Driver extends Component {
                 <Switch color="primary" checked={!invisible} onChange={this.handleBadgeVisibility} />
               }
               label="Online / OffLine"
-              style={{paddingLeft: 3}}
+              style={{ paddingLeft: 3 }}
             />
           </FormGroup>
           <FormGroup row className={classes.clabel}>
@@ -115,52 +167,64 @@ class Driver extends Component {
           </FormGroup>
           <Button variant="contained" color="primary" className={classes.button}>
             <Typography className={classes.name} gutterBottom
-            onClick={()=>{this.ExitClick()}}
+              onClick={() => { this.ExitClick() }}
             >
               Đăng xuất
 						</Typography>
-            <Exit className={classes.rightIcon} style={{paddingBottom: 2}} />
+            <Exit className={classes.rightIcon} style={{ paddingBottom: 2 }} />
           </Button>
 
+
+
           <Dialog
-          open={this.state.open}
-          onClose={()=>{this.OpenClick()}}
-          aria-labelledby="form-dialog-title"
+            open={this.state.open}
+            onClose={() => { this.OpenClick() }}
+            aria-labelledby="form-dialog-title"
           >
-          <DialogTitle id="form-dialog-title">Nhập địa chỉ</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              Nhập địa chỉ để định vị, vị trí trên bản đồ
+            <DialogTitle id="form-dialog-title">Nhập địa chỉ</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                Nhập địa chỉ để định vị, vị trí trên bản đồ
             </DialogContentText>
-            <TextField
-              autoFocus
-              margin="dense"
-              id="address"
-              label="Địa chỉ"
-              type="address"
-              fullWidth
-            />
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={() => {this.OpenClick()}} color="primary">
-              Hủy
+              <TextField
+                autoFocus
+                error={this.state.error !== 0 && this.state.errorAdress !== ''}
+                margin="dense"
+                id="address"
+                label="Địa chỉ"
+                type="address"
+                fullWidth
+                onChange={this.ValueChange("address")}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => { this.OpenClick() }} color="primary">
+                Hủy
             </Button>
-            <Button onClick={() => {this.SendLocation()}} color="primary">
-              Hoàn tất
+              <Button onClick={() => { this.SendLocation() }} color="primary">
+                Hoàn tất
             </Button>
-          </DialogActions>
-        </Dialog>
-        
-        
+            </DialogActions>
+          </Dialog>
+        </div>
+
+        <div className={classes.Control2}>
+          <Button variant="contained" color="primary" className={classes.button2}
+            onClick={() => { this.OpenClick() }}
+          >
+            <Typography className={classes.name2} gutterBottom>
+              Địa chỉ: {this.state.address === '' ? "Thành phố hồ chính minh" : this.state.address}
+            </Typography>
+          </Button>
         </div>
 
         <div style={{ flex: 1, zIndex: 2 }}>
           <Map
             google={this.props.google}
             zoom={14}
-            initialCenter={{
+            center={{
               lat: lat,
-              lng: lng
+              lng: lng,
             }}
             gestureHandling={"cooperative"}
             onClick={this.mapClicked.bind(this)}
@@ -170,11 +234,14 @@ class Driver extends Component {
                 alert(1);
               }}
               name={"Current location"}
-              position={{ lat: lat, lng: lng }}
+              position={{
+                lat: lat,
+                lng: lng,
+              }}
             />
           </Map>
         </div>
-        <Trip open={true}/>
+        <Trip open={false} />
       </div>
     );
   }
@@ -182,6 +249,12 @@ class Driver extends Component {
 
 const styles = theme => ({
   Control: {
+    marginLeft: 10,
+    position: 'fixed',
+    zIndex: 1,
+  },
+  Control2: {
+    marginTop: 65,
     marginLeft: 10,
     position: 'fixed',
     zIndex: 1,
@@ -197,6 +270,18 @@ const styles = theme => ({
       width: 160,
     },
   },
+
+  button2: {
+    wordBreak: "break-all",
+    paddingLeft: 3,
+    color: 'white',
+    float: "left",
+    marginTop: 10,
+    marginRight: 10,
+    width: 286,
+    minHeight: 48,
+  },
+
   rightIcon: {
     paddingLeft: 10,
   },
@@ -225,7 +310,16 @@ const styles = theme => ({
     },
   },
 
-  clabel:{
+  name2: {
+    color: 'white',
+    fontFamily: 'roboto medium',
+    fontSize: 15,
+    marginTop: 6,
+    display: 'initial',
+  },
+
+
+  clabel: {
     background: 'powderblue',
     marginTop: 10,
     marginBottom: 10,
@@ -245,6 +339,7 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
   return {
     doGetUserByToken: () => dispatch(getUserByToken()),
+    doGetLocationDriver: (address) => dispatch(getLocationDriver(address)),
   };
 };
 export default GoogleApiWrapper({

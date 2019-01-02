@@ -61,7 +61,6 @@ exports.getUsersByToken= function(req,res){
 	var new_token= req.new_token;
 	jwt.verify(reToken, "token", function(err, user) {
 		if(err){
-			console.log("check token: "+err.message);
 			if(err.message ==='jwt expired')
 			{
 				jwt.verify(new_token, "token", function(err, users) {

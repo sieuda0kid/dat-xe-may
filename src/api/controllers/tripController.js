@@ -32,7 +32,7 @@ exports.getTripByDriverId=function(req,res){
     })
 }
 
-//update trang thai chuyen di
+//update vị trí chuyen di
 exports.updateTripLocation = function(req,res) {
     var c=req.body;
     tripRepo.updateTripLocation(c)
@@ -125,7 +125,6 @@ exports.updateTripStatus = function(req,res) {
             let lat=body.results[0].geometry.location.lat;
             let lng=body.results[0].geometry.location.lng;
             let lo=lat+","+lng;
-            //customerId,driverId,tripLocation,tripLongitude,tripLatitude,status,note,requestTime,isDelete
             var trip={
                 customerId:rows.insertId,
                 driverId:0,

@@ -2,9 +2,9 @@ var express = require('express'),
     morgan = require('morgan'),
     bodyParser = require('body-parser');
 var app = express();
-var cors =  require('cors');
-var userRepos=require('./repo/userRepo.js');
-var driver=require('./controllers/driverController.js');
+var cors = require('cors');
+var userRepos = require('./repo/userRepo.js');
+var driver = require('./controllers/driverController.js');
 var tripRepos = require('./repo/tripRepo.js');
 
 
@@ -35,7 +35,7 @@ app.use('/map', require('./router/mapRouter.js'));
 app.use('/trip', require('./router/tripRouter.js'));
 
 app.get('/', (req, res) => {
-    
+
 })
 
 
@@ -48,178 +48,176 @@ var server = app.listen(port, () => {
 
 
 // socket
-var arr=[];
-var arrDriver=[];
-var arrRequest=[];
+var arr = [];
+var arrDriver = [];
+var arrRequest = [];
 var sk;
 var io = require('socket.io').listen(server);
 io.on('connection', function (socket) {
-    socket.user={id:0};
-    socket.location={};
+    socket.user = { id: 0 };
+    socket.location = {};
     arr.push(socket);
-    socket.driver_status=1;
-    socket.premission=true;
-    
-    socket.on('disconnect', function(){
-        if(socket.user.username !== undefined)
-        console.log("user : [ "+socket.user.username +"("+socket.id+")"+" ] OFFLINE");
-        if(socket.user.userType===4)
-        {
-            if(socket.driver_status!=2){
-                userRepos.updateStatusDriver(socket.user.id,3).then(data=>{}).catch(err=>{console.log(err)});
-             } 
+    socket.driver_status = 1;
+    socket.premission = true;
+    socket.on('disconnect', function () {
+        if (socket.user.username !== undefined)
+            console.log("user : [ " + socket.user.username + "(" + socket.id + ")" + " ] OFFLINE");
+        if (socket.user.userType === 4) {
+            if (socket.driver_status != 2) {
+                userRepos.updateStatusDriver(socket.user.id, 3).then(data => { }).catch(err => { console.log(err) });
+            }
         }
-        if(socket.user.id!=0){
-            arr.splice(arr.indexOf(socket.id),1);
-            arrDriver.splice(arrDriver.indexOf(socket.id),1);
+        if (socket.user.id != 0) {
+            arr.splice(arr.indexOf(socket.id), 1);
+            arrDriver.splice(arrDriver.indexOf(socket.id), 1);
         }
-       
+
 
     });
 
-    socket.on("guidata", (data)=>{
-        guidata(data,data.id,data.title)
+    socket.on("guidata", (data) => {
+        guidata(data, data.id, data.title)
     })
 
-    socket.on("location_driver",function(data){
+    socket.on("location_driver", function (data) {
         console.log("location driver")
-        if(socket.user.userType===4){
-            socket.location=data;
+
+        if (data.userType === 4) {
+            getSocket(data);
+            arr[sk].location = data.location;
         }
+        console.log("driver " + arr[sk]);
     });
-    socket.on("driver_online",function(data){
+    socket.on("driver_online", function (data) {
         console.log("driver change status online");
-        if(socket.user.userType===4){
+        if (data.userType === 4) {
             getSocket(data);
-            driver.driverOnline(arr[sk],data,arrDriver);
+            driver.driverOnline(arr[sk], data, arrDriver);
         }
     });
-    socket.on("driver_offline",function(data){
+    socket.on("driver_offline", function (data) {
         console.log("driver change status offline");
-        if(data.userType===4){
+        if (data.userType === 4) {
             getSocket(data);
-            driver.driverOffline(arr[sk],data,arrDriver);
+            driver.driverOffline(arr[sk], data, arrDriver);
         }
     });
-    socket.on("begin_trip",function(data){
-        if(socket.user.userType===4){
-            driver.beginTrip(socket,data);
+    socket.on("begin_trip", function (data) {
+        if (socket.user.userType === 4) {
+            driver.beginTrip(socket, data);
         }
     });
-    socket.on("end_trip",function(data){
-        if(socket.user.userType===4){
-            driver.endTrip(socket,data,arrDriver);
+    socket.on("end_trip", function (data) {
+        if (socket.user.userType === 4) {
+            driver.endTrip(socket, data, arrDriver);
         }
     });
-    socket.on("done_locationer",function(data){
-        driver.updateDoneLocation(data,socket);
-});
-    socket.on("request-client",function(data){
+    socket.on("done_locationer", function (data) {
+        driver.updateDoneLocation(data, socket);
+    });
+    socket.on("request-client", function (data) {
         arrRequest.push(data);
-        if(data.status!=5){
-            driver.sendRequestForDriver(socket,data,arrDriver);
-        }else {
+        if (data.status != 5) {
+            driver.sendRequestForDriver(socket, data, arrDriver);
+        } else {
             console.log("Chuyen di nay da hoan tat !!");
-        }  
+        }
     });
     //g
-    socket.on("receive-request",function(data){
+    socket.on("receive-request", function (data) {
         arrRequest.push(data);
-        driver.sendRequestForDriver10s(socket,data,arrDriver,arrRequest);
+        driver.sendRequestForDriver10s(socket, data, arrDriver, arrRequest);
     });
-    socket.on("refuse-request",function(data){
+    socket.on("refuse-request", function (data) {
         arrRequest.push(data);
-        driver.driverRefuseRequest(socket,data,arrDriver,arrRequest);
+        driver.driverRefuseRequest(socket, data, arrDriver, arrRequest);
     });
-    socket.on("send_refresh_token",function(data){
-        console.log("nhan duoc send_refresh_token "+data);
-        if(data===null || data.length===0)
-        {
-               console.log("Khong nhan dc send_refresh_token tu client");
-        }else {
+    socket.on("send_refresh_token", function (data) {
+        console.log("nhan duoc send_refresh_token " + data);
+        if (data === null || data.length === 0) {
+            console.log("Khong nhan dc send_refresh_token tu client");
+        } else {
             userRepos.getUserByRefreshToken(data)
-            .then(rows=>{
-                if(rows.length>0)
-                {
-                    console.log("refresh token 1");
-                    if(socket.user.username !== undefined)
-                    console.log(" user : [ "+socket.user.username+"("+socket.id+")"+" ] ONLINE");
-                    socket.user=rows[0];
-                    if(socket.user.userType===4)
-                    {
-                        console.log("refresh token 2");
-                        arrDriver.push(socket);
-                        userRepos.getDriverByRefreshToken(data)
-                        .then(result=>{
-                            if(result[0].status===2){
-                               socket.driver_status=2;
-                            }else {
-                                socket.driver_status=1;
-                                userRepos.updateStatusDriver(rows[0].id,1).then(data=>{}).catch(err=>{console.log(err)});
-                            }
-                        })
-                        .catch(err=>console.log(err))
+                .then(rows => {
+                    if (rows.length > 0) {
+                        if (socket.user.username !== undefined)
+                            console.log(" user : [ " + socket.user.username + "(" + socket.id + ")" + " ] ONLINE");
+                        socket.user = rows[0];
+                        if (socket.user.userType === 4) {
+                            arrDriver.push(socket);
+                            userRepos.getDriverByRefreshToken(data)
+                                .then(result => {
+                                    if (result[0].status === 2) {
+                                        socket.driver_status = 2;
+                                    } else {
+                                        socket.driver_status = 1;
+                                        userRepos.updateStatusDriver(rows[0].id, 1).then(data => { }).catch(err => { console.log(err) });
+                                    }
+                                })
+                                .catch(err => console.log(err))
+                        }
                     }
-                }
-            })
-            .catch(error=>{
-                console.log(error);
-            });
-        }   
+                })
+                .catch(error => {
+                    console.log(error);
+                });
+        }
     });
 
 })
-app.get("/haha",(req,res)=>{
-    var user=[];
-    if(arrDriver.length>0)
-    {
-        arrDriver.map(e=>{
-           user.push({
-            user:e.user,
-            location:e.location
-           }); 
+app.get("/haha", (req, res) => {
+    var user = [];
+    if (arrDriver.length > 0) {
+        arrDriver.map(e => {
+            user.push({
+                user: e.user,
+                location: e.location
+            });
         })
     }
     res.json({
-        arrDriver:arrDriver.length,
-        socket:user
+        arrDriver: arrDriver.length,
+        socket: user
     });
-   
+
 })
-var guidata=(data,id,title)=>{
-	arr.map(socket=>{
-        if(socket.user !== undefined)
-		    if(socket.user.id === id)
-		    {
-            socket.emit(title,data);
+var guidata = (data, id, title) => {
+    arr.map(socket => {
+        if (socket.user !== undefined)
+            if (socket.user.id === id) {
+                socket.emit(title, data);
             }
     });
 }
-var guidataForType=(data,title)=>{
-   io.sockets.emit(title,data[0]);
+var guidataForType = (data, title) => {
+    io.sockets.emit(title, data[0]);
 }
 
-var sendUpdate=(data,title)=>{
+var sendUpdate = (data, title) => {
     console.log(data);
     tripRepos.getTripByTripId(data)
-    .then(rows=>{
-       console.log(rows[0]);
-      io.sockets.emit(title,rows[0]);
-    })
-    .catch(err=>{
-      console.log(err);
-    })
-  }
-var getSocket = (data) =>{
-    arr.map((socket, key)=>{
-        if(socket.user !== undefined)
-            if(socket.user.id === data.id)
+        .then(rows => {
+            console.log(rows[0]);
+            io.sockets.emit(title, rows[0]);
+        })
+        .catch(err => {
+            console.log(err);
+        })
+}
+var getSocket = (data) => {
+    arr.map((socket, key) => {
+        if (socket.user.username !== undefined)
+            if (socket.user.id === data.id)
                 sk = key;
     });
+
+    arr.map(socket =>{
+        console.log("username: "+socket.user.username);
+    })
 }
 
-module.exports.arrDriver=arrDriver;
-module.exports.sendUpdate=sendUpdate;
-module.exports.guidata=guidata;
-module.exports.guidataForType=guidataForType;
-module.exports.arrRequest=arrRequest
+module.exports.arrDriver = arrDriver;
+module.exports.sendUpdate = sendUpdate;
+module.exports.guidata = guidata;
+module.exports.guidataForType = guidataForType;
+module.exports.arrRequest = arrRequest

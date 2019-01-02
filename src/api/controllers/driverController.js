@@ -144,7 +144,7 @@ exports.driverOnline=function(socket,data,arrDriver){
     arrDriver.map(e=>{
         if(e.user.id===socket.user.id){e.driver_status=1;}
     })
-    userRepos.updateStausDriver(socket.user.id,1).then(data=>{}).catch(err=>{console.log(err)});
+    userRepos.updateStatusDriver(socket.user.id,1).then(data=>{}).catch(err=>{console.log(err)});
 }
 
 exports.driverOffline=function(socket,data,arrDriver){
