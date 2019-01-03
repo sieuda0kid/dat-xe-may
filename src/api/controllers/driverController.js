@@ -46,7 +46,7 @@ var getListDistance = function (arrDriver, requestLocation) {
     });
 }
 
-exports.sendRequestForDriver = function (socket, requestLocation, arrDriver) {
+exports.sendRequestForDriver = function (requestLocation, arrDriver) {
     arrDriver.map(skt => {
         console.log("arrDriver: "+ skt.id);
     })
@@ -67,18 +67,32 @@ exports.sendRequestForDriver = function (socket, requestLocation, arrDriver) {
     }
 }
 exports.endTrip = function (socket, data, arrDriver) {
-    tripRepos.updateTripStatus(data.id, 5).then(res => {
+    var trip ={
+        id: data.id,
+        status: 5,
+    }
+    tripRepos.updateTripStatus(trip).then(res => {
         app.sendUpdate(data.id, "update_status_trip");
     }).catch(err => { console.log(err) });
     arrDriver.map(e => {
         if (e.user.id === socket.user.id) { e.driver_status = 1; }
     })
-    userRepos.updateStausDriver(socket.user.id, 1).then(data => { }).catch(err => { console.log(err) });
+    userRepos.updateStatusDriver(socket.user.id, 1).then(data => { }).catch(err => { console.log(err) });
 }
-exports.beginTrip = function (socket, data) {
-    tripRepos.updateTripStatus(data.id, 4).then(res => {
+exports.beginTrip = function (socket, data,arrDriver) {
+    console.log("begin trip");
+    console.log("trip id: "+data.id)
+    var trip = {
+        id: data.id,
+        status: 4,
+    }
+    tripRepos.updateTripStatus(trip).then(res => {
         app.sendUpdate(data.id, "update_status_trip");
     }).catch(err => { console.log(err) });
+    arrDriver.map(e => {
+        if (e.user.id === socket.user.id) { e.driver_status = 2; }
+    })
+    userRepos.updateStatusDriver(socket.user.id, 1).then(data => { }).catch(err => { console.log(err) });
 }
 
 exports.updateStatusRequestWithDriver = function (data, requestLocation, arrDriver) {

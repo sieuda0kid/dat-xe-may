@@ -7,6 +7,7 @@ import { withStyles } from '@material-ui/core/styles';
 import LocationOn from "@material-ui/icons/LocationOn";
 import DireactionCar from "@material-ui/icons/DirectionsCar";
 import LocalCarWash from "@material-ui/icons/LocalCarWash";
+import CustomerIcon from "@material-ui/icons/PersonPinCircle";
 import Exit from "@material-ui/icons/ExitToApp";
 import { Typography, Button } from "@material-ui/core";
 import TextField from '@material-ui/core/TextField';
@@ -19,7 +20,7 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import { getUserByToken } from '../../store/actions/user.js';
-import { getLocationDriver,getTripByTripId,getArrayLocation } from '../../store/actions/trip.js';
+import { getLocationDriver, getTripByTripId, getArrayLocation } from '../../store/actions/trip.js';
 import { connect } from 'react-redux';
 import { socket } from '../../Utils/Distance.js';
 class Driver extends Component {
@@ -38,7 +39,7 @@ class Driver extends Component {
       error: 0,
       infoTrip: {},
       message: '',
-      BeginTrip: false,
+      Trip: false,
       steps: [],
     };
     this.ExitClick = this.ExitClick.bind(this);
@@ -62,8 +63,8 @@ class Driver extends Component {
     });
   };
 
-  CofirmClick = () =>{
-    this.setState({openCofirm: !this.state.openCofirm});
+  CofirmClick = () => {
+    this.setState({ openCofirm: !this.state.openCofirm });
   }
 
   componentWillMount() {
@@ -80,10 +81,10 @@ class Driver extends Component {
               lng: this.state.lng,
             };
             user.location = location;
-            socket.emit("location_driver",user);
+            socket.emit("location_driver", user);
           }
         })
-        .catch(error =>{
+        .catch(error => {
           console.log(error);
         })
     }
@@ -92,28 +93,50 @@ class Driver extends Component {
   AcceptClick = () => {
     var driver_trip_info = this.state.user;
     driver_trip_info.trip = this.state.infoTrip;
-    socket.emit("accept_trip",driver_trip_info);
+    socket.emit("accept_trip", driver_trip_info);
     this.child.handleClose();
-    this.setState({openInfoTrip: false});
+    this.setState({ openInfoTrip: false });
+    this.FindTheWay();
   }
   CancleClick = () => {
-    this.setState({BeginTrip: false,
+    this.setState({
+      Trip: false,
       infoTrip: {},
       openInfoTrip: false,
+      steps: [],
     });
     this.child.handleClose();
   }
 
-  FindTheWay = (endLoaction) => {
+  BeginTrip = () => {
+    socket.emit("begin_trip",this.state.infoTrip);
+  }
+
+  EndTrip = () => {
+    this.setState({
+      infoTrip: {},
+      openInfoTrip: false,
+      steps: [],
+      Trip: false,
+    });
+    socket.emit("end_trip",this.state.infoTrip);
+  }
+
+
+  FindTheWay = () => {
     var startLocation = {
       lat: this.state.lat,
       lng: this.state.lng,
     }
+    var endLoaction = {
+      lat: this.state.infoTrip.tripLatitude,
+      lng: this.state.infoTrip.tripLongitude,
+    }
     var arrayLocation = [];
     this.props.doGetArrayLocation(startLocation, endLoaction)
       .then(resJson => {
-        console.log('doGetArrayLocation' ,resJson);
-        if (resJson.returnCode !== 0){
+        console.log('doGetArrayLocation', resJson);
+        if (resJson.returnCode !== 0) {
           resJson.object.steps.map(step => {
             var polyline = polyUtil.decode(step.polyline.points);
             polyline.map(latlng => {
@@ -133,44 +156,45 @@ class Driver extends Component {
       .catch(error => console.log(error));
   }
 
-  componentDidMount(){
-    if(!window.location.hash) {
+  componentDidMount() {
+    if (!window.location.hash) {
       window.location = window.location + '#loaded';
       window.location.reload();
     }
-    if(this.props.userProfile === null)
+    if (this.props.userProfile === null)
       window.location.reload();
-    console.log("userprofile: "+this.props.userProfile);
-    console.log("socket driver: "+socket.id);
-    if(this.props.userProfile !== null)
+    console.log("userprofile: " + this.props.userProfile);
+    console.log("socket driver: " + socket.id);
+    if (this.props.userProfile !== null)
       socket.emit("update socket", this.props.userProfile);
-    socket.on("server_send_request", (data)=>{
-      console.log("data: "+data.id);
+    socket.on("server_send_request", (data) => {
+      console.log("data: " + data.id);
       this.props.doGetTripByTripId(data.id)
-      .then(resJson=>{
-        if(resJson.returnCode ===1)
-        {
-          console.log("get info trip");
-          this.setState({openInfoTrip: true, infoTrip: resJson.object})
-          this.child.handleClick();
-        }
-      })
-      .catch(error=>{
-        console.log(error);
-      })
+        .then(resJson => {
+          if (resJson.returnCode === 1) {
+            console.log("get info trip");
+            this.setState({ openInfoTrip: true, infoTrip: resJson.object })
+            this.child.handleClick();
+          }
+        })
+        .catch(error => {
+          console.log(error);
+        })
     })
-    socket.on("message", data =>{
-      if(data){
-        this.setState({message: 'Nhận chuyến đi thành công',
-        BeginTrip: true,
-        openCofirm: true,
-      });
+    socket.on("message", data => {
+      if (data) {
+        this.setState({
+          message: 'Nhận chuyến đi thành công',
+          Trip: true,
+          openCofirm: true,
+        });
       }
-      else{
-        this.setState({message: 'Chuyến đi này đã có người nhận',
-        BeginTrip: false,
-        openCofirm: true,
-      });
+      else {
+        this.setState({
+          message: 'Chuyến đi này đã có người nhận',
+          Trip: false,
+          openCofirm: true,
+        });
       }
     })
   }
@@ -191,7 +215,7 @@ class Driver extends Component {
       alert("Khoảng cách lớn hơn 100m");
     }
   }
-  ExitClick (){
+  ExitClick() {
     console.log("exitttttttttttttt");
     sessionStorage.removeItem("access_token");
     sessionStorage.removeItem("refresh_token");
@@ -218,8 +242,8 @@ class Driver extends Component {
             var user = this.state.user;
             user.location = location;
             socket.emit("location_driver", user);
-            console.log("lat: "+location.lat);
-            console.log("lng: "+location.lng);
+            console.log("lat: " + location.lat);
+            console.log("lng: " + location.lng);
           }
           else {
             this.setState({
@@ -234,7 +258,7 @@ class Driver extends Component {
           console.log(error);
         })
     }
-  
+
   }
 
   handleBadgeVisibility = () => {
@@ -257,7 +281,7 @@ class Driver extends Component {
               Định vị
 						</Typography>
             <LocationOn className={classes.rightIcon} />
-            
+
           </Button>
           <FormGroup row className={classes.label}>
             <FormControlLabel
@@ -284,7 +308,7 @@ class Driver extends Component {
 						</Typography>
             <Exit className={classes.rightIcon} style={{ paddingBottom: 2 }} />
           </Button>
-          
+
           <Dialog
             open={this.state.open}
             onClose={() => { this.OpenClick() }}
@@ -315,7 +339,7 @@ class Driver extends Component {
             </Button>
             </DialogActions>
           </Dialog>
-              
+
           <Dialog
             open={this.state.openCofirm}
             onClose={() => { this.CofirmClick() }}
@@ -325,7 +349,7 @@ class Driver extends Component {
             <DialogContent>
               <DialogContentText>
                 {this.state.message}
-            </DialogContentText>
+              </DialogContentText>
             </DialogContent>
             <DialogActions>
               <Button onClick={() => { this.CofirmClick() }} color="primary">
@@ -345,26 +369,28 @@ class Driver extends Component {
           </Button>
         </div>
 
-        {this.state.BeginTrip? 
-        <div className={classes.Control3}>
-        <Button variant="contained" color="primary" className={classes.button3}
-        >
-          <Typography className={classes.name} gutterBottom>
-            Bắt dầu chuyến đi
+        {this.state.Trip ?
+          <div className={classes.Control3}>
+            <Button variant="contained" color="primary" className={classes.button3}
+            onClick={this.BeginTrip}
+            >
+              <Typography className={classes.name} gutterBottom>
+                Bắt dầu chuyến đi
           </Typography>
-          <DireactionCar className={classes.rightIcon} />
-        </Button>
-        <Button variant="contained" color="primary" className={classes.button3}
-        >
-          <Typography className={classes.name} gutterBottom>
-            Kết thúc chuyến đi
+              <DireactionCar className={classes.rightIcon} />
+            </Button>
+            <Button variant="contained" color="primary" className={classes.button3}
+            onClick={this.EndTrip}
+            >
+              <Typography className={classes.name} gutterBottom>
+                Kết thúc chuyến đi
           </Typography>
-          <LocalCarWash className={classes.rightIcon} />
-        </Button>
-      </div>
+              <LocalCarWash className={classes.rightIcon} />
+            </Button>
+          </div>
           :
-        null}
-        
+          null}
+
 
         <div style={{ flex: 1, zIndex: 2 }}>
           <Map
@@ -393,16 +419,27 @@ class Driver extends Component {
                 lng: lng,
               }}
             />
+            {this.state.infoTrip ?
+              <Marker
+                name={"customer location"}
+                icon={{url:"https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png"}}
+                position={{
+                  lat: this.state.infoTrip.tripLatitude,
+                  lng: this.state.infoTrip.tripLongitude,
+                }}
+              />
+              : null}
+
           </Map>
         </div>
-        <Trip open={this.state.openInfoTrip} 
-        name={this.state.infoTrip.customerName}
-        phone={this.state.infoTrip.customerPhone}
-        address={this.state.infoTrip.customerAddress}
-        note={this.state.infoTrip.note}
-        onRef={ref => (this.child = ref)}
-        AcceptClick={this.AcceptClick}
-        CancleClick={this.CancleClick}
+        <Trip open={this.state.openInfoTrip}
+          name={this.state.infoTrip.customerName}
+          phone={this.state.infoTrip.customerPhone}
+          address={this.state.infoTrip.customerAddress}
+          note={this.state.infoTrip.note}
+          onRef={ref => (this.child = ref)}
+          AcceptClick={this.AcceptClick}
+          CancleClick={this.CancleClick}
         />
       </div>
     );
@@ -528,8 +565,8 @@ const mapDispatchToProps = dispatch => {
     doGetUserByToken: () => dispatch(getUserByToken()),
     doGetLocationDriver: (address) => dispatch(getLocationDriver(address)),
     doGetTripByTripId: (id) => dispatch(getTripByTripId(id)),
-    doGetArrayLocation: (startLocation, endLoaction) => 
-    dispatch(getArrayLocation(startLocation, endLoaction)),
+    doGetArrayLocation: (startLocation, endLoaction) =>
+      dispatch(getArrayLocation(startLocation, endLoaction)),
   };
 };
 export default GoogleApiWrapper({

@@ -193,7 +193,7 @@ io.on('connection', function (socket) {
     });
     socket.on("begin_trip", function (data) {
         if (socket.user.userType === 4) {
-            driver.beginTrip(socket, data);
+            driver.beginTrip(socket, data,arrDriver);
         }
     });
     socket.on("end_trip", function (data) {
@@ -202,14 +202,12 @@ io.on('connection', function (socket) {
         }
     });
 
-
-
     socket.on("request-client", function (data) {
         console.log("request-location");
         arrRequest.push(data);
         if (data.status != 5) {
             if (arrDriver.length > 0)
-                driver.sendRequestForDriver(socket, data, arrDriver);
+                driver.sendRequestForDriver(data, arrDriver);
             else
                 console.log("chua co driver nao online");
         } else {
@@ -299,7 +297,6 @@ var guidataForType2 = (data, title) => {
 }
 
 var sendUpdate = (data, title) => {
-    console.log("sendUpdate data: " + data);
     tripRepos.getTripByTripId(data)
         .then(rows => {
             console.log("rows: " + rows[0]);

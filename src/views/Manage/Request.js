@@ -44,7 +44,7 @@ class ManageRequestView extends React.Component {
       })
   }
 
-  componentDidMount(){
+  loadData = () => {
     this.props.doGetAllTrip()
     .then(resJson => {
       this.setState({
@@ -53,6 +53,15 @@ class ManageRequestView extends React.Component {
     })
     .catch(error => {
       console.log('get all trip error');
+    })
+  }
+  componentDidMount(){
+    this.loadData();
+    socket.on("update_status_trip",data=>{
+      this.loadData();
+    })
+    socket.on("server_send_trip",data=>{
+      this.loadData();
     })
   }
 
