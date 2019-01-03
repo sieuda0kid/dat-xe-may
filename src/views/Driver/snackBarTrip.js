@@ -4,14 +4,9 @@ import classNames from 'classnames';
 import Button from '@material-ui/core/Button';
 import InfoIcon from '@material-ui/icons/Info';
 import CloseIcon from '@material-ui/icons/Close';
-import IconButton from '@material-ui/core/IconButton';
 import Snackbar from '@material-ui/core/Snackbar';
 import SnackbarContent from '@material-ui/core/SnackbarContent';
 import { withStyles } from '@material-ui/core/styles';
-
-const variantIcon = {
-  info: InfoIcon,
-};
 
 const styles1 = theme => ({
   info: {
@@ -31,11 +26,11 @@ const styles1 = theme => ({
 });
 
 function MySnackbarContent(props) {
-  const { classes, className, message, onClose, variant, ...other } = props;
-  const Icon = variantIcon[variant];
+  const { classes, className, message, onClose, onAccept, key,variant, ...other } = props;
 
   return (
     <SnackbarContent
+      key={key}
       className={classNames(classes[variant], className)}
       aria-describedby="client-snackbar"
       message={
@@ -51,7 +46,7 @@ function MySnackbarContent(props) {
               aria-label="Close"
               className={classes.close}
               style={{ width: 80 }}
-              onClick={onClose}
+              onClick={onAccept}
             >
               Nhận
           <CloseIcon className={classes.icon} />
@@ -80,6 +75,7 @@ MySnackbarContent.propTypes = {
   className: PropTypes.string,
   message: PropTypes.node,
   onClose: PropTypes.func,
+  onAccept: PropTypes.func,
   variant: PropTypes.oneOf(['info']).isRequired,
 };
 
@@ -124,6 +120,14 @@ class snackBarTrip extends React.Component {
     this.setState({ open: false });
   };
 
+  handleCancle = () =>{
+    this.props.CancleClick();
+  }
+
+  handleAccept = () => {
+    this.props.AcceptClick();
+  }
+
   render() {
     const { classes } = this.props;
     return (
@@ -147,7 +151,8 @@ class snackBarTrip extends React.Component {
             onClose={this.handleClose}
           >
             <MySnackbarContentWrapper
-              onClose={this.handleClose}
+              onClose={this.handleCancle}
+              onAccept={this.handleAccept}
               variant="info"
               message={
                 <div style={{ fontFamily: 'roboto', fontSize: 16 }}>

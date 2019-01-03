@@ -3,11 +3,11 @@ var mysql = require('mysql');
 exports.load = (sql) => {
     return new Promise((resolve,reject)=>{
         var connection = mysql.createConnection({
-            host: 'us-cdbr-iron-east-01.cleardb.net',
+            host: '127.0.0.1',
             port: '3306',
-            user: 'b7d771d665cbf4',
-            password: 'b3e6e3b9',
-            database: 'heroku_7c0f2df8574bd81'
+            user: 'root',
+            password: '',
+            database: 'dat_xe'
         });
         connection.connect();
         connection.query(sql, (error,results,fields)=>{
@@ -22,11 +22,11 @@ exports.load = (sql) => {
 exports.write = function(sql) {
     return new Promise((resolve, reject) => {
         var connection = mysql.createConnection({
-            host: 'us-cdbr-iron-east-01.cleardb.net',
+            host: '127.0.0.1',
             port: '3306',
-            user: 'b7d771d665cbf4',
-            password: 'b3e6e3b9',
-            database: 'heroku_7c0f2df8574bd81'
+            user: 'root',
+            password: '',
+            database: 'dat_xe'
         });
 
         connection.connect();

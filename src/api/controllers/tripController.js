@@ -136,14 +136,11 @@ exports.updateTripStatus = function(req,res) {
                 requestTime:moment().format('x'),
                 isDelete:0
             }
-            //console.log(trip);
             tripRepo.addTrip(trip)
             .then(data=>{
                 trip.id=data.insertId;
                 tripRepo.getTripByTripId(trip.id)
                 .then(values=>{
-                    console.log("values");
-                    console.log(values);
                     socket.guidataForType(values,"server_send_trip");
                     res.json({
                         returnCode:1,

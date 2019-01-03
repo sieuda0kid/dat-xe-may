@@ -123,3 +123,15 @@ export function getTripByTripIdApi(access_token,refresh_token,id){
     }
     return fetchApi('trip/gettripbytripid','POST',body);
 }
+
+export function getArrayLocationApi(access_token, refresh_token, startLocation, endLocation){
+    var body = {
+        access_token: access_token,
+        refresh_token: refresh_token,
+        start_lat: startLocation.lat,
+        start_lng: startLocation.lng,
+        end_lat: endLocation.lat,
+        end_lng: endLocation.lng,
+    }
+    return fetchApi('map/getArrayLocation','POST', body);
+}

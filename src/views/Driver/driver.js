@@ -1,10 +1,12 @@
-import { Map, Marker, GoogleApiWrapper } from "google-maps-react";
+import { Map, Marker, GoogleApiWrapper, Polyline } from "google-maps-react";
 import { haversineDistance } from "../../Utils/Distance.js";
-
+import polyUtil from 'polyline-encoded';
 import Trip from './snackBarTrip.js';
 import React, { Component } from "react";
 import { withStyles } from '@material-ui/core/styles';
 import LocationOn from "@material-ui/icons/LocationOn";
+import DireactionCar from "@material-ui/icons/DirectionsCar";
+import LocalCarWash from "@material-ui/icons/LocalCarWash";
 import Exit from "@material-ui/icons/ExitToApp";
 import { Typography, Button } from "@material-ui/core";
 import TextField from '@material-ui/core/TextField';
@@ -17,24 +19,27 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import { getUserByToken } from '../../store/actions/user.js';
-import { getLocationDriver,getTripByTripId } from '../../store/actions/trip.js';
+import { getLocationDriver,getTripByTripId,getArrayLocation } from '../../store/actions/trip.js';
 import { connect } from 'react-redux';
 import { socket } from '../../Utils/Distance.js';
 class Driver extends Component {
   constructor(props) {
     super(props);
-    this.childRef = React.createRef();
     this.state = {
       lat: 10.823099,
       lng: 106.629664,
       invisible: false,
       open: false,
+      openCofirm: false,
       openInfoTrip: '',
       user: null,
       address: '',
       errorAdress: '',
       error: 0,
       infoTrip: {},
+      message: '',
+      BeginTrip: false,
+      steps: [],
     };
     this.ExitClick = this.ExitClick.bind(this);
   }
@@ -57,6 +62,10 @@ class Driver extends Component {
     });
   };
 
+  CofirmClick = () =>{
+    this.setState({openCofirm: !this.state.openCofirm});
+  }
+
   componentWillMount() {
     if (sessionStorage.getItem('access_token') === null) {
       this.props.history.push('/')
@@ -66,7 +75,12 @@ class Driver extends Component {
           if (resJson.returnCode === 1) {
             var user = resJson.user;
             this.setState({ user: user });
-            
+            var location = {
+              lat: this.state.lat,
+              lng: this.state.lng,
+            };
+            user.location = location;
+            socket.emit("location_driver",user);
           }
         })
         .catch(error =>{
@@ -75,20 +89,59 @@ class Driver extends Component {
     }
   }
 
-  reload = (function() {
-    var executed = false;
-    return function() {
-        if (!executed) {
-            executed = true;
-            if(this.props.userProfile === null)
-              window.location.reload();
+  AcceptClick = () => {
+    var driver_trip_info = this.state.user;
+    driver_trip_info.trip = this.state.infoTrip;
+    socket.emit("accept_trip",driver_trip_info);
+    this.child.handleClose();
+    this.setState({openInfoTrip: false});
+  }
+  CancleClick = () => {
+    this.setState({BeginTrip: false,
+      infoTrip: {},
+      openInfoTrip: false,
+    });
+    this.child.handleClose();
+  }
+
+  FindTheWay = (endLoaction) => {
+    var startLocation = {
+      lat: this.state.lat,
+      lng: this.state.lng,
+    }
+    var arrayLocation = [];
+    this.props.doGetArrayLocation(startLocation, endLoaction)
+      .then(resJson => {
+        console.log('doGetArrayLocation' ,resJson);
+        if (resJson.returnCode !== 0){
+          resJson.object.steps.map(step => {
+            var polyline = polyUtil.decode(step.polyline.points);
+            polyline.map(latlng => {
+              var location = {
+                lat: latlng[0],
+                lng: latlng[1],
+              }
+              arrayLocation.push(location);
+            })
+            console.log(arrayLocation);
+          })
+          this.setState({
+            steps: arrayLocation
+          })
         }
-    };
-})();
+      })
+      .catch(error => console.log(error));
+  }
 
   componentDidMount(){
-    this.reload();
+    if(!window.location.hash) {
+      window.location = window.location + '#loaded';
+      window.location.reload();
+    }
+    if(this.props.userProfile === null)
+      window.location.reload();
     console.log("userprofile: "+this.props.userProfile);
+    console.log("socket driver: "+socket.id);
     if(this.props.userProfile !== null)
       socket.emit("update socket", this.props.userProfile);
     socket.on("server_send_request", (data)=>{
@@ -105,6 +158,20 @@ class Driver extends Component {
       .catch(error=>{
         console.log(error);
       })
+    })
+    socket.on("message", data =>{
+      if(data){
+        this.setState({message: 'Nhận chuyến đi thành công',
+        BeginTrip: true,
+        openCofirm: true,
+      });
+      }
+      else{
+        this.setState({message: 'Chuyến đi này đã có người nhận',
+        BeginTrip: false,
+        openCofirm: true,
+      });
+      }
     })
   }
 
@@ -151,6 +218,8 @@ class Driver extends Component {
             var user = this.state.user;
             user.location = location;
             socket.emit("location_driver", user);
+            console.log("lat: "+location.lat);
+            console.log("lng: "+location.lng);
           }
           else {
             this.setState({
@@ -166,10 +235,6 @@ class Driver extends Component {
         })
     }
   
-  }
-
-  Click = () => {
-    this.child.handleClick() 
   }
 
   handleBadgeVisibility = () => {
@@ -192,6 +257,7 @@ class Driver extends Component {
               Định vị
 						</Typography>
             <LocationOn className={classes.rightIcon} />
+            
           </Button>
           <FormGroup row className={classes.label}>
             <FormControlLabel
@@ -218,9 +284,7 @@ class Driver extends Component {
 						</Typography>
             <Exit className={classes.rightIcon} style={{ paddingBottom: 2 }} />
           </Button>
-
-
-
+          
           <Dialog
             open={this.state.open}
             onClose={() => { this.OpenClick() }}
@@ -251,17 +315,57 @@ class Driver extends Component {
             </Button>
             </DialogActions>
           </Dialog>
+              
+          <Dialog
+            open={this.state.openCofirm}
+            onClose={() => { this.CofirmClick() }}
+            aria-labelledby="form-dialog-title"
+          >
+            <DialogTitle id="form-dialog-title">Thông báo</DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                {this.state.message}
+            </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => { this.CofirmClick() }} color="primary">
+                Xác nhận
+            </Button>
+            </DialogActions>
+          </Dialog>
+
         </div>
 
         <div className={classes.Control2}>
           <Button variant="contained" color="primary" className={classes.button2}
-            onClick={this.Click}
           >
             <Typography className={classes.name2} gutterBottom>
               Địa chỉ: {this.state.address === '' ? "Thành phố hồ chính minh" : this.state.address}
             </Typography>
           </Button>
         </div>
+
+        {this.state.BeginTrip? 
+        <div className={classes.Control3}>
+        <Button variant="contained" color="primary" className={classes.button3}
+        >
+          <Typography className={classes.name} gutterBottom>
+            Bắt dầu chuyến đi
+          </Typography>
+          <DireactionCar className={classes.rightIcon} />
+        </Button>
+        <Button variant="contained" color="primary" className={classes.button3}
+        >
+          <Typography className={classes.name} gutterBottom>
+            Kết thúc chuyến đi
+          </Typography>
+          <LocalCarWash className={classes.rightIcon} />
+        </Button>
+      </div>
+          :
+        null}
+        
+
         <div style={{ flex: 1, zIndex: 2 }}>
           <Map
             google={this.props.google}
@@ -273,6 +377,12 @@ class Driver extends Component {
             gestureHandling={"cooperative"}
             onClick={this.mapClicked.bind(this)}
           >
+            <Polyline
+              path={this.state.steps}
+              strokeColor="#0000FF"
+              strokeOpacity={2}
+              strokeWeight={5} />
+
             <Marker
               onClick={() => {
                 alert(1);
@@ -291,6 +401,8 @@ class Driver extends Component {
         address={this.state.infoTrip.customerAddress}
         note={this.state.infoTrip.note}
         onRef={ref => (this.child = ref)}
+        AcceptClick={this.AcceptClick}
+        CancleClick={this.CancleClick}
         />
       </div>
     );
@@ -309,13 +421,19 @@ const styles = theme => ({
     position: 'fixed',
     zIndex: 1,
   },
+  Control3: {
+    marginTop: 130,
+    marginLeft: 10,
+    position: 'fixed',
+    zIndex: 1,
+  },
   button: {
     paddingLeft: 3,
     color: 'white',
     float: "left",
     marginTop: 10,
     marginRight: 10,
-    width: 50,
+    width: 40,
     [theme.breakpoints.up('md')]: {
       width: 160,
     },
@@ -330,6 +448,18 @@ const styles = theme => ({
     marginRight: 10,
     width: 286,
     minHeight: 48,
+  },
+
+  button3: {
+    paddingLeft: 3,
+    color: 'white',
+    float: "left",
+    marginTop: 10,
+    marginRight: 10,
+    width: 40,
+    [theme.breakpoints.up('md')]: {
+      width: 205,
+    },
   },
 
   rightIcon: {
@@ -398,6 +528,8 @@ const mapDispatchToProps = dispatch => {
     doGetUserByToken: () => dispatch(getUserByToken()),
     doGetLocationDriver: (address) => dispatch(getLocationDriver(address)),
     doGetTripByTripId: (id) => dispatch(getTripByTripId(id)),
+    doGetArrayLocation: (startLocation, endLoaction) => 
+    dispatch(getArrayLocation(startLocation, endLoaction)),
   };
 };
 export default GoogleApiWrapper({

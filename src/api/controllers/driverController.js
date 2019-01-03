@@ -34,104 +34,35 @@ var getListDistance = function (arrDriver, requestLocation) {
             list.push(driver);
         }
     })
+
+    arrDriver.map(d => {
+        console.log("dist: " + d.dist);
+        console.log("driver name: " + d.user.username)
+        console.log("lat: " + d.location.lat);
+        console.log("lng: " + d.location.lng);
+    })
     return list.sort(function (a, b) {
         return a.dist - b.dist
     });
 }
-var send_request = function (soket_driver, request, check) {
-    return new Promise((resolve, reject) => {
-        var thoi_han = false;
-        soket_driver.emit("server_send_request", request);
-
-        var action = setTimeout(() => {
-            soket_driver.premission = false;
-            reject(thoi_han);
-        }, 15000)
-
-        soket_driver.on("accept_request", function (data) {
-            if (soket_driver.premission === true) {
-                console.log(`===========> Driver ${soket_driver.user.username} đã chấp nhận chuyến đi`);
-                clearTimeout(action);
-                thoi_han = true
-                resolve(thoi_han);
-            }
-        });
-        soket_driver.on("destroy_request", function (data) {
-            soket_driver.premission = false;
-            console.log(`===========> Driver ${soket_driver.user.username} đã chấp nhận chuyến đi`);
-            clearTimeout(action);
-            thoi_han = true
-            reject(thoi_han);
-        });
-    })
-}
 
 exports.sendRequestForDriver = function (socket, requestLocation, arrDriver) {
+    arrDriver.map(skt => {
+        console.log("arrDriver: "+ skt.id);
+    })
     var arrDistance = [];
     var arrDistance = getListDistance(arrDriver, requestLocation);
-    console.log("socket ban dau: "+ arrDriver[0].id);
-    console.log("So driver se gui: "+arrDistance.length);
-    console.log("socket cua driver: "+arrDistance[0].id);
+    console.log("distance: "+ arrDistance[0].id);
+    var N = 10;
+    var length = arrDistance.length;
     tripRepos.updateTripStatus(requestLocation.id, 3).then(data => { }).catch(err => { console.log(err) });
-    if (arrDistance.length > 0) {
-        console.log("arrDistance: "+arrDistance.length);
-        var tt = 0;
-        var t = 0;
-        var N = 10;
-        console.log("N: "+N);
-        var length = arrDistance.length;
-        if (arrDistance.length > N) {
+    if (length > 0) {
+        if (length > N) {
             length = N;
         }
         console.log(length);
-        for (var i = 0; i <= length; i++) {
-            (function (ind) {
-                console.log("driver: "+ arrDistance[t].driver_status);
-                console.log("driver: "+ arrDistance[t].user.username);
-                var action = setTimeout(function () {
-                    if (t === length) {
-                        tripRepos.updateTripStatus(requestLocation.id, 7).then(data => {
-                            app.sendUpdate(requestLocation.id, "update_status_trip");
-                        }).catch(err => { console.log(err) });
-                        tt = 1;
-                    }
-                    if (tt === 0) {
-                        if (arrDistance[t].driver_status === 1) {
-                            send_request(arrDistance[t], requestLocation)
-                                .then(result => {
-                                    arrDistance[t].request = requestLocation;
-                                    //console.log(`===========> Driver ${arrDistance[t].user.username} đã chấp nhận chuyến đy`);
-                                    console.log("ket thuc");
-                                    arrDistance.map(e => {
-                                        if (e.user.id === arrDistance[t].user.id) { e.driver_status = 2; }
-                                    })
-
-                                    tripRepos.updateDriverId(requestLocation.id, arrDistance[t].user.id).then(data => {
-                                        app.sendUpdate(requestLocation.id, "update_status_trip");
-                                    }).catch(err => { console.log(err) });
-
-                                    tripRepos.saveLocation(requestLocation, arrDistance[t].user.id).then(data => {
-                                    }).catch(err => { console.log(err) });
-
-                                    tripRepos.updateTripStatus(requestLocation.id, 6).then(data => {
-                                        app.sendUpdate(requestLocation.id, "update_status_trip");
-                                    }).catch(err => { console.log(err) });
-                                    userRepos.updateStausDriver(arrDistance[t].user.id, 2).then(data => {
-                                        app.sendDriverUpdate(arrDistance[t].user.id, "update_status_driver")
-                                    }).catch(err => { console.log(err) });
-                                    tt = 1;
-
-                                    console.log("thoi han:"+ result);
-                                })
-                                .catch(err => {
-                                    console.log(err);
-                                    console.log("driver nay khong nhan");
-                                    t++;
-                                });
-                        }
-                    }
-                }, ind * 15000);
-            })(i);
+        for (var i = 0; i < length; i++) {
+            arrDistance[i].emit("server_send_request",requestLocation);
         }
     }
 }

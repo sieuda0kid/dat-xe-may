@@ -25,10 +25,6 @@ app.use(function (req, res, next) {
     next();
 });
 
-// thiet lap cho router
-// app.use('/user', require('./router/userRouter.js'));
-// app.use('/refreshToken', require('./router/tokenRouter.js'));
-// app.use('/map', require('./router/mapRouter.js'));
 app.use('/user', require('./router/userRouter.js'));
 app.use('/refreshToken', require('./router/tokenRouter.js'));
 app.use('/map', require('./router/mapRouter.js'));
@@ -59,8 +55,6 @@ io.on('connection', function (socket) {
     arr.push(socket);
     socket.driver_status = 1;
     socket.premission = true;
-    console.log("arr: " + arr.length);
-    console.log("arrDriver: " + arrDriver.length);
     socket.on('disconnect', function () {
         // if (socket.user.username !== undefined)
         //     console.log("user : [ " + socket.user.username + "(" + socket.id + ")" + " ] OFFLINE");
@@ -90,29 +84,78 @@ io.on('connection', function (socket) {
             arr.splice(arr.indexOf(socket.id), 1);
             arrDriver.splice(arrDriver.indexOf(socket.id), 1);
         }
-        console.log("arrdriver: " + arrDriver.length);
-        console.log("arr: " + arr.length);
+    })
 
-        arrDriver.map(s => {
-            console.log("socet: " + s.id);
-        })
+    socket.on("accept_trip", (data) => {
+        console.log("accept trip ");
+        var tripId = data.trip.id;
+        tripRepos.getTripByTripId(tripId)
+            .then(rows => {
+                if (rows.length > 0) {
+                    if (rows[0].status !== 6) {
+                        socket.emit("message", true);
+                        console.log("Xe da co nguoi nhan");
+                        check = true;
+                        var trip = {
+                            id: tripId,
+                            status: 6,
+                        }
+                        tripRepos.updateTripStatus(trip)
+                            .then(r => {
+                                console.log("update trang thai chuyen di success");
+                            })
+                            .catch(error => {
+                                console.log(error);
+                            })
+
+                        tripRepos.updateDriverId(tripId, data.id)
+                            .then(res => {
+                                console.log("chuyen di da update driverID");
+                            })
+                            .catch(error => {
+                                console.log(error);
+                            })
+                        tripRepos.getTripByTripId(tripId)
+                            .then(values => {
+                                guidataForType(values, "server_send_trip");
+                            })
+                            .catch(error => {
+                                console.log(error);
+                            })
+                    }
+                    else {
+                        socket.emit("message", false);
+                    }
+                }
+            })
+            .catch(err => {
+                console.log(err);
+            })
+
+
+
+
     })
 
     socket.on("update socket", data => {
         console.log("update socket");
         console.log("socket driver: " + socket.id);
         if (data.userType === 4) {
-            var sk = getSocket(data);
-            var user = arr[sk].user;
-            var ds = arr[sk].driver_status;
-            var pre = arr[sk].premission;
-            var key = getSocketDriver(arr[sk]);
-            arr[sk] = socket;
-            arr[sk].user = user;
-            arr[sk].driver_status = ds;
-            arr[sk].premission = pre;
-            arrDriver[key] = arr[sk];
-            console.log('arrDriver Key:' + arrDriver[key].id);
+            console.log("length: " + arrDriver.lengh);
+            arrDriver.map((s, k) => {
+                if (s.user.id === data.id) {
+                    var user = s.user;
+                    var ds = s.driver_status;
+                    var pre = s.premission;
+                    var location = s.location;
+                    socket.user = user;
+                    socket.driver_status = ds;
+                    socket.premission = pre;
+                    socket.location = location;
+                    arrDriver.splice(k, 1);
+                    arrDriver.push(socket);
+                }
+            })
         }
         arrDriver.map(s => {
             console.log("abc: " + s.id);
@@ -121,9 +164,16 @@ io.on('connection', function (socket) {
     socket.on("location_driver", function (data) {
         console.log("location driver");
         if (data.userType === 4) {
-            var sk = getSocket(data);
-            arr[sk].location = data.location;
+            arrDriver.map(socket => {
+                if (socket.user.id === data.id)
+                    socket.location = data.location;
+            })
         }
+        arrDriver.map(s => {
+            console.log("driver: " + s.user.username)
+            console.log("driver lat: " + s.location.lat)
+            console.log("driver lng: " + s.location.lng)
+        })
     });
     socket.on("driver_online", function (data) {
         console.log("driver change status online");
@@ -151,14 +201,13 @@ io.on('connection', function (socket) {
             driver.endTrip(socket, data, arrDriver);
         }
     });
-    socket.on("done_locationer", function (data) {
-        driver.updateDoneLocation(data, socket);
-    });
+
+
+
     socket.on("request-client", function (data) {
         console.log("request-location");
         arrRequest.push(data);
         if (data.status != 5) {
-            console.log("rc driver: " + arrDriver[0].id);
             if (arrDriver.length > 0)
                 driver.sendRequestForDriver(socket, data, arrDriver);
             else
@@ -189,11 +238,11 @@ io.on('connection', function (socket) {
                         socket.user = rows[0];
                         if (socket.user.userType === 4) {
                             var push = true;
-                            arrDriver.map(s =>{
-                                if(s.user.id === socket.user.id)
+                            arrDriver.map(s => {
+                                if (s.user.id === socket.user.id)
                                     push = false;
                             })
-                            if(push)
+                            if (push)
                                 arrDriver.push(socket);
                             userRepos.getDriverByRefreshToken(data)
                                 .then(result => {
