@@ -8,7 +8,7 @@ exports.updateTripLocation = function(trip) {
 }
 
 exports.updateTripStatus = function(trip) {
-	var sql = `update chuyen set status = '${trip.status}' where id = '${trip.id}'`;
+	var sql = `update trip set status = '${trip.status}' where id = '${trip.id}'`;
 	return db.write(sql);
 }
 
@@ -32,7 +32,6 @@ exports.loadTripFull2=function(cus){
 	console.log(sql);
 	return db.write(sql);
 }
-
 
 exports.getTripByDriverId=function(id){
     var sql = `select t.*, ta.id as statusId, ta.statusName, s.fullname as driverName, c.id as customerId, c.customerName, c.customerPhone, c.customerAddress from trip t INNER JOIN customer c ON t.customerId = c.id LEFT JOIN tripstatus ta ON t.status = ta.id LEFT JOIN staff s ON t.driverId=s.id where t.driverID = ${id}`;

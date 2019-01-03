@@ -44,31 +44,31 @@ function MySnackbarContent(props) {
         </span>
       }
       action={[
+        <div>
+
           <div>
-        
-          <div>
-          <Button variant="contained" color="secondary" key="close"
-          aria-label="Close"
-          className={classes.close}
-          style={{width: 80}}
-          onClick={onClose}
-          >
+            <Button variant="contained" color="secondary" key="close"
+              aria-label="Close"
+              className={classes.close}
+              style={{ width: 80 }}
+              onClick={onClose}
+            >
               Nhận
           <CloseIcon className={classes.icon} />
-          </Button>
+            </Button>
           </div>
-          <div style={{marginTop: 10}}>
-          <Button variant="contained" color="secondary" key="close"
-          aria-label="Close"
-          className={classes.close}
-          style={{width: 80}}
-          onClick={onClose}
-          >
+          <div style={{ marginTop: 10 }}>
+            <Button variant="contained" color="secondary" key="close"
+              aria-label="Close"
+              className={classes.close}
+              style={{ width: 80 }}
+              onClick={onClose}
+            >
               Hủy
           <CloseIcon className={classes.icon} />
-          </Button>
+            </Button>
           </div>
-          </div>
+        </div>
       ]}
       {...other}
     />
@@ -96,21 +96,31 @@ const styles2 = theme => ({
 class snackBarTrip extends React.Component {
   state = {
     open: this.props.open,
-    name: 'Nguyên Tuấn',
-    phone: '01239291213',
-    address: 'Khoa học tự nhiên',
-    note: 'gấn quán cafe ABC',
+    name: this.props.name,
+    phone: this.props.phone,
+    address: this.props.address,
+    note: this.props.note,
   };
 
+  componentDidMount(){
+    this.props.onRef(this);
+  }
+  componentWillUnmount() {
+    this.props.onRef(undefined)
+  }
   handleClick = () => {
-    this.setState({ open: true });
+    this.setState({
+      open: true,
+      name: this.props.name,
+      phone: this.props.phone,
+      address: this.props.address,
+      note: this.props.note,
+    });
   };
-
   handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
-
     this.setState({ open: false });
   };
 
@@ -125,31 +135,31 @@ class snackBarTrip extends React.Component {
         backgroundColor: "#F2F2F2",
         minWidth: 300
       }}>
-       <div>
-        <Snackbar
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
-          }}
-          open={this.state.open}
-          //10s tự động mất
-          autoHideDuration={36000}
-          onClose={this.handleClose}
-        >
-          <MySnackbarContentWrapper
+        <div>
+          <Snackbar
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'left',
+            }}
+            open={this.state.open}
+            //10s tự động mất
+            autoHideDuration={10000}
             onClose={this.handleClose}
-            variant="info"
-            message={
-                <div style={{fontFamily: 'roboto', fontSize: 16}}>
-                    <span>Tên khách hàng: {this.state.name}</span><br/><br/>
-                    <span>Địa chỉ đón khách: {this.state.address}</span><br/><br/>
-                    <span>Số diện thoại: {this.state.phone}</span><br/><br/>
-                    <span>Ghi chú: {this.state.note}</span>
+          >
+            <MySnackbarContentWrapper
+              onClose={this.handleClose}
+              variant="info"
+              message={
+                <div style={{ fontFamily: 'roboto', fontSize: 16 }}>
+                  <span>Tên khách hàng: {this.state.name}</span><br /><br />
+                  <span>Địa chỉ đón khách: {this.state.address}</span><br /><br />
+                  <span>Số diện thoại: {this.state.phone}</span><br /><br />
+                  <span>Ghi chú: {this.state.note}</span>
                 </div>
-            }
-          />
-        </Snackbar>
-      </div>
+              }
+            />
+          </Snackbar>
+        </div>
       </div>
     );
   }

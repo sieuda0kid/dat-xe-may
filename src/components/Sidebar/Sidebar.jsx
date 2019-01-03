@@ -16,10 +16,10 @@ const Sidebar = ({ ...props }) => {
   function activeRoute(routeName) {
     return props.location.pathname.indexOf(routeName) > -1 ? true : false;
   }
-  const { classes, color, logo, image, logoText, routes } = props;
+  const { classes, color, logo, image, logoText, routes, Log_out } = props;
   var links = (
     <List className={classes.list}>
-      <ListItem button className={classes.itemLink } component={Link} to={'/'} onClick={() => {sessionStorage.removeItem('access_token'); sessionStorage.removeItem('refresh_token');}}>
+      <ListItem button className={classes.itemLink } component={Link} to={'/'} onClick={Log_out}>
         <ListItemIcon className={classes.itemIcon}>
           <Logout />
         </ListItemIcon>

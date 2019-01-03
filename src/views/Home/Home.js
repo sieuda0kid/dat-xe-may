@@ -41,10 +41,14 @@ class Home extends React.Component {
 						loginError: '',
 						userType: resJson.user.userType,
 					})
-					if (resJson.user.userType !== 4)
-						this.props.history.push('/dashboard')
-					else
-						this.props.history.push('/driver');
+					if (resJson.user.userType === 4)
+						this.props.history.push('/driver')
+					else if (resJson.user.userType === 3)
+						this.props.history.push('/dashboard');
+					else if(resJson.user.userType == 2)	
+						this.props.history.push("/dashboard/locaterequest");
+					else if(resJson.user.userType == 1)
+						this.props.history.push("/dashboard/receiverequest");
 				} else {
 					this.setState({
 						loginError: 'Tài khoản hoặc mật khẩu không chính xác'

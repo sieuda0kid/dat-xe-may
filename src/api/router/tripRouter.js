@@ -31,4 +31,7 @@ router.route('/updateTripLocation')
 router.route('/getlocationdriver')
 .post(token.checkAccessToken, map.getLatLong)
 
+router.route('/getTripByTripId')
+.post(token.checkAccessToken,tripCtrl.getTripByTripId)
+
 module.exports = router;

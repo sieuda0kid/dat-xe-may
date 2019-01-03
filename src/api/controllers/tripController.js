@@ -236,3 +236,31 @@ exports.getTripNonLocation=function(req,res){
         });
     })
 }
+
+exports.getTripByTripId=function(req,res){
+    var c=req.body;
+    tripRepo.getTripByTripId(c.id)
+    .then(rows=>{
+        if(rows.length>0)
+        {
+           res.json({
+            returnCode:1,
+            message:" lấy danh sách trip theo trip id thành công!",
+            object:rows[0],
+        })
+       }else {
+           res.json({
+            returnCode:0,
+            message:" khong co trip nao!",
+            object:rows
+        })
+       }
+   })
+    .catch(err=>{
+        res.json({
+            returnCode:0,
+            message:"lấy danh sách trip theo trip id thất bại!",
+            error:err
+        });
+    })
+}

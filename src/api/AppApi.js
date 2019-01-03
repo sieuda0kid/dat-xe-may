@@ -114,3 +114,12 @@ export function getLocationDriverApi(access_token,refresh_token,address){
     }
     return fetchApi('trip/getlocationdriver', 'POST', body);
 }
+
+export function getTripByTripIdApi(access_token,refresh_token,id){
+    var body= {
+        access_token: access_token,
+        refresh_token: refresh_token,
+        id: id,
+    }
+    return fetchApi('trip/gettripbytripid','POST',body);
+}

@@ -17,22 +17,26 @@ import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import { getUserByToken } from '../../store/actions/user.js';
-import { getLocationDriver } from '../../store/actions/trip.js';
+import { getLocationDriver,getTripByTripId } from '../../store/actions/trip.js';
 import { connect } from 'react-redux';
 import { socket } from '../../Utils/Distance.js';
 class Driver extends Component {
   constructor(props) {
     super(props);
+    this.childRef = React.createRef();
     this.state = {
       lat: 10.823099,
       lng: 106.629664,
       invisible: false,
       open: false,
+      openInfoTrip: '',
       user: null,
       address: '',
       errorAdress: '',
       error: 0,
+      infoTrip: {},
     };
+    this.ExitClick = this.ExitClick.bind(this);
   }
 
   checkValidation = (address) => {
@@ -59,12 +63,49 @@ class Driver extends Component {
     } else {
       this.props.doGetUserByToken()
         .then(resJson => {
-          if (resJson !== undefined) {
+          if (resJson.returnCode === 1) {
             var user = resJson.user;
             this.setState({ user: user });
+            
           }
         })
+        .catch(error =>{
+          console.log(error);
+        })
     }
+  }
+
+  reload = (function() {
+    var executed = false;
+    return function() {
+        if (!executed) {
+            executed = true;
+            if(this.props.userProfile === null)
+              window.location.reload();
+        }
+    };
+})();
+
+  componentDidMount(){
+    this.reload();
+    console.log("userprofile: "+this.props.userProfile);
+    if(this.props.userProfile !== null)
+      socket.emit("update socket", this.props.userProfile);
+    socket.on("server_send_request", (data)=>{
+      console.log("data: "+data.id);
+      this.props.doGetTripByTripId(data.id)
+      .then(resJson=>{
+        if(resJson.returnCode ===1)
+        {
+          console.log("get info trip");
+          this.setState({openInfoTrip: true, infoTrip: resJson.object})
+          this.child.handleClick();
+        }
+      })
+      .catch(error=>{
+        console.log(error);
+      })
+    })
   }
 
   mapClicked(mapProps, map, clickEvent) {
@@ -83,12 +124,12 @@ class Driver extends Component {
       alert("Khoảng cách lớn hơn 100m");
     }
   }
-  ExitClick = () => {
+  ExitClick (){
     console.log("exitttttttttttttt");
     sessionStorage.removeItem("access_token");
     sessionStorage.removeItem("refresh_token");
     this.props.history.push("/");
-    socket.emit("driver_offline", this.state.user);
+    socket.emit("log_out", this.state.user);
   };
 
   OpenClick = () => {
@@ -97,7 +138,6 @@ class Driver extends Component {
 
   SendLocation = () => {
     var check = this.checkValidation(this.state.address)
-    console.log("checl:" + check);
     if (check) {
       this.props.doGetLocationDriver(this.state.address)
         .then(resJson => {
@@ -125,6 +165,11 @@ class Driver extends Component {
           console.log(error);
         })
     }
+  
+  }
+
+  Click = () => {
+    this.child.handleClick() 
   }
 
   handleBadgeVisibility = () => {
@@ -167,7 +212,7 @@ class Driver extends Component {
           </FormGroup>
           <Button variant="contained" color="primary" className={classes.button}>
             <Typography className={classes.name} gutterBottom
-              onClick={() => { this.ExitClick() }}
+              onClick={this.ExitClick}
             >
               Đăng xuất
 						</Typography>
@@ -210,14 +255,13 @@ class Driver extends Component {
 
         <div className={classes.Control2}>
           <Button variant="contained" color="primary" className={classes.button2}
-            onClick={() => { this.OpenClick() }}
+            onClick={this.Click}
           >
             <Typography className={classes.name2} gutterBottom>
               Địa chỉ: {this.state.address === '' ? "Thành phố hồ chính minh" : this.state.address}
             </Typography>
           </Button>
         </div>
-
         <div style={{ flex: 1, zIndex: 2 }}>
           <Map
             google={this.props.google}
@@ -241,7 +285,13 @@ class Driver extends Component {
             />
           </Map>
         </div>
-        <Trip open={false} />
+        <Trip open={this.state.openInfoTrip} 
+        name={this.state.infoTrip.customerName}
+        phone={this.state.infoTrip.customerPhone}
+        address={this.state.infoTrip.customerAddress}
+        note={this.state.infoTrip.note}
+        onRef={ref => (this.child = ref)}
+        />
       </div>
     );
   }
@@ -336,12 +386,20 @@ const styles = theme => ({
     },
   }
 });
+
+const mapStateToProps = state => {
+  return {
+    userProfile: state.user.profile,
+  };
+};
+
 const mapDispatchToProps = dispatch => {
   return {
     doGetUserByToken: () => dispatch(getUserByToken()),
     doGetLocationDriver: (address) => dispatch(getLocationDriver(address)),
+    doGetTripByTripId: (id) => dispatch(getTripByTripId(id)),
   };
 };
 export default GoogleApiWrapper({
   apiKey: "AIzaSyBWvtNFhg1yB1_q8i8F0aEFdGrSh4O1rPQ"
-})(withStyles(styles)(connect(null, mapDispatchToProps)(Driver)));
+})(withStyles(styles)(connect(mapStateToProps, mapDispatchToProps)(Driver)));

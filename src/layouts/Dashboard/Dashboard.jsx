@@ -14,6 +14,7 @@ import RouterLocation from "../../routes/RouterLocation.jsx";
 import dashboardStyle from "../../assets/jss/material-dashboard-react/layouts/dashboardStyle.jsx";
 import image from '../../assets/images/sidebar-2.jpg'
 import logo from "../../assets/images/logo.png";
+import {socket} from '../../Utils/Distance.js';
 const switchRoutes = (
   <Switch>
     {dashboardRoutes.map((prop, key) => {
@@ -28,7 +29,8 @@ class Dashboard extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      mobileOpen: false
+      mobileOpen: false,
+      user: '',
     };
     this.resizeFunction = this.resizeFunction.bind(this);
   }
@@ -43,6 +45,14 @@ class Dashboard extends React.Component {
       this.setState({ mobileOpen: false });
     }
   }
+
+  LogOut = () => {
+    console.log("exitttttttttttttt");
+    sessionStorage.removeItem("access_token");
+    sessionStorage.removeItem("refresh_token");
+    socket.emit("log_out", this.state.user);
+  }
+
   componentDidMount() {
     if (navigator.platform.indexOf("Win") > -1) {
       const ps = new PerfectScrollbar(this.refs.mainPanel);
@@ -56,11 +66,15 @@ class Dashboard extends React.Component {
         console.log("doGetUserByToken", resJson);
         if (resJson !== undefined){
           var user = resJson.user;
-          this.setState({userType: user.userType});
+          this.setState({userType: user.userType, user: user});
           if(user.userType == 1)
             this.props.history.push("/dashboard/receiverequest");
           else if(user.userType == 2)
             this.props.history.push("/dashboard/locaterequest");
+          else if(user.userType == 4)
+            this.props.history.push("/driver");
+          else if(user.userType == 3)
+            this.props.history.push("/dashboard");
         }
       })
     }
@@ -88,6 +102,7 @@ class Dashboard extends React.Component {
           handleDrawerToggle={this.handleDrawerToggle}
           open={this.state.mobileOpen}
           color="blue"
+          Log_out={()=>this.LogOut()}
           {...rest}
         />
         <div className={classes.mainPanel} ref="mainPanel">
