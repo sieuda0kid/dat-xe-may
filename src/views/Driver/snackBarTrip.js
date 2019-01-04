@@ -147,7 +147,7 @@ class snackBarTrip extends React.Component {
             }}
             open={this.state.open}
             //10s tự động mất
-            autoHideDuration={10000}
+            autoHideDuration={5000}
             onClose={this.handleClose}
           >
             <MySnackbarContentWrapper

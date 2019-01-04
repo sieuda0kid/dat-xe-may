@@ -198,7 +198,7 @@ class Driver extends Component {
             this.state.action = setTimeout(() => {
               socket.emit("cancel_trip", resJson.object);
               this.child.handleClose();
-            }, 10000)
+            }, 5000)
           }
         })
         .catch(error => {
@@ -233,8 +233,17 @@ class Driver extends Component {
     if (distanceAllow) {
       this.setState({
         lat: clickEvent.latLng.lat(),
-        lng: clickEvent.latLng.lng()
+        lng: clickEvent.latLng.lng(),
       });
+      var user = this.state.user;
+      var location = {
+        lat: this.state.lat,
+        lng: this.state.lng,
+      }
+      user.location = location;
+      socket.emit("location_driver", user);
+      console.log("lat: " + location.lat);
+      console.log("lng: " + location.lng);
     } else {
       alert("Khoảng cách lớn hơn 100m");
     }
@@ -400,8 +409,8 @@ class Driver extends Component {
                 onClick={this.BeginEndClick}
               >
                 <Typography className={classes.name} gutterBottom>
-                {this.state.BeginEndMessage}
-            </Typography>
+                  {this.state.BeginEndMessage}
+                </Typography>
                 <DireactionCar className={classes.rightIcon} />
               </Button>
               :
@@ -410,7 +419,7 @@ class Driver extends Component {
               >
                 <Typography className={classes.name} gutterBottom>
                   {this.state.BeginEndMessage}
-            </Typography>
+                </Typography>
                 <LocalCarWash className={classes.rightIcon} />
               </Button>
             }

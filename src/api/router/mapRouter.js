@@ -10,4 +10,6 @@ router.route('/getLatLng')
 router.route('/getArrayLocation')
 .post(token.checkAccessToken,map.getArrayLocation)
 
+router.route('/getAddressFromLatLng')
+.post(token.checkAccessToken,map.getAddressFromLatLng)
 module.exports = router;

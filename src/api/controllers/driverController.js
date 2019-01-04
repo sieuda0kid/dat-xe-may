@@ -98,7 +98,7 @@ exports.beginTrip = function (socket, data,arrDriver) {
     arrDriver.map(e => {
         if (e.user.id === socket.user.id) { e.driver_status = 2; }
     })
-    userRepos.updateStatusDriver(socket.user.id, 1).then(data => { 
+    userRepos.updateStatusDriver(socket.user.id, 2).then(data => { 
         app.guidataForType(data,"update_status_driver");
     }).catch(err => { console.log(err) });
 }

@@ -86,3 +86,8 @@ exports.updateStatusDriver = function(id,status){
 	console.log(sql);
 	return db.write(sql); 
 }
+
+exports.getCustomer = function() {
+	var sql = `select * from customer`;
+	return db.write(sql); 
+}

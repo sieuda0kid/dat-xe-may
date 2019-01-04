@@ -22,4 +22,7 @@ router.route('/getUserByToken')
 router.route('/getUserForType') 
 .post(token.checkAccessToken,userCtrl.getUsersForType);
 
+router.route('/getCustomer') 
+.post(token.checkAccessToken,userCtrl.getCustomer);
+
 module.exports = router;

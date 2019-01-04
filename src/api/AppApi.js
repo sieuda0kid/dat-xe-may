@@ -143,3 +143,20 @@ export function getInfoTripApi(access_token, refresh_token) {
     }
     return fetchApi('trip/getInfoTrip','POST', body);
 }
+
+export function getCustomerApi(access_token,refresh_token) {
+    var body = {
+        access_token: access_token,
+        refresh_token: refresh_token,
+    }
+    return fetchApi('user/getCustomer','POST', body);
+}
+
+export function getAddressFromLatLngApi(access_token,refresh_token, location) {
+    var body = {
+        access_token: access_token,
+        refresh_token: refresh_token,
+        latlng: location,
+    }
+    return fetchApi('map/getAddressFromLatLng','POST', body);
+}

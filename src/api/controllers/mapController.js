@@ -2,7 +2,6 @@ var mapRepo = require('../repo/mapRepo.js');
 require('dotenv').config();
 
 exports.getLatLong = function(req,res) {
-
     var address=req.body.address;
     var stringUrl=`https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=${"AIzaSyCHY7K0nxdBJ2MVMMVe46mJP8PvoezIUvc"}`;
     var url = encodeURI(stringUrl); 
@@ -49,5 +48,30 @@ exports.getArrayLocation = function(req,res) {
           message:"get Array Location error!",
           error:err
        });
+    })
+ }
+
+ exports.getAddressFromLatLng = function(req,res) {
+    var latlng=req.body.latlng;
+    var stringUrl=`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latlng.lat},${latlng.lng}&key=${"AIzaSyCHY7K0nxdBJ2MVMMVe46mJP8PvoezIUvc"}`;
+    var url = encodeURI(stringUrl); 
+    mapRepo.getMapAPI(url)
+    .then(body=>{
+        var c={
+            address:body.results[0].formatted_address
+        }
+    //	res.json(body);
+        res.json({
+             returnCode:1,
+             message:"get address success!",
+             object:c
+         });
+    })
+    .catch(err=>{
+            res.json({
+             returnCode:0,
+             message:"get address error!",
+             error:err
+         });
     })
  }

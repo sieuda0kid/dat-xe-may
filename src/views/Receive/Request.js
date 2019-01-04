@@ -10,7 +10,14 @@ import { addCustomerAndTrip } from "../../store/actions/trip";
 import { getUserByToken } from '../../store/actions/user.js';
 import AlertDialog from "../../components/Dialog/AlertDialog";
 import withStyles from "@material-ui/core/styles/withStyles";
-
+import Table from "../../components/Table/Table.jsx";
+import {getCustomer} from "../../store/actions/user.js";
+const tableHead = [
+  { id: 'id', label: 'Mã khách' },
+  { id: 'customerName', label: 'Tên khách' },
+  { id: 'customerAddress', label: 'Địa chỉ' },
+  { id: 'customerPhone', label: 'Diện thoại' },
+];
 
 class ReceiveRequestView extends React.Component {
   constructor(props) {
@@ -30,6 +37,10 @@ class ReceiveRequestView extends React.Component {
 
       isDialogOpen: false,
       dialogAlert: '',
+
+      history: false,
+      tableData: [],
+      message: 'Xem lịch sử',
     };
   }
 
@@ -116,7 +127,24 @@ class ReceiveRequestView extends React.Component {
     })
   }
 
+  loadData = () => {
+    this.props.doGetCustomer()
+      .then(resJson => {
+        this.setState({
+          tableData: resJson.object,
+        })
+      })
+      .catch(error => {
+        console.log('Get customer error: ', error);
+      })
+  }
+
+  onTableRowClick = () => {
+
+  }
+
   componentWillMount(){
+    this.loadData();
     this.props.doGetUserByToken()
       .then(resJson => {
         console.log("doGetUserByToken", resJson);
@@ -126,6 +154,17 @@ class ReceiveRequestView extends React.Component {
             this.props.history.push("/dashboard/locaterequest");
         }
       })
+  }
+
+  HistoryClick = () =>{
+    this.setState({history: !this.state.history,
+      
+    });
+    if(this.state.message === "Xem lịch sử")
+      this.setState({message: "Ẩn lịch sử"})
+    else
+    this.setState({message: "Xóa lịch sử"})
+    console.log("history: "+this.state.history);
   }
 
   render() {
@@ -196,8 +235,14 @@ class ReceiveRequestView extends React.Component {
                   multiline
                   rows="6"
                 />
-                <Button round variant="contained" color="primary" style={{ width: 100, marginLeft: 'auto', background: "#483D8B" }} onClick={this.onReceiveClick}>
+                <Button round variant="contained" color="primary" style={{marginRight:15, width: 100, marginLeft: 'auto', background: "#483D8B" }} 
+                onClick={this.onReceiveClick}>
                   <Typography style={{ color: '#FFFFFF' }}>Nhận</Typography>
+                </Button>
+
+                <Button round variant="contained" color="primary" style={{ width: 100, marginLeft: 'auto', background: "#483D8B",marginRight: 15 }} 
+                onClick={() => {this.HistoryClick()}}>
+                  <Typography style={{ color: '#FFFFFF' }}>{this.state.message}</Typography>
                 </Button>
               </div>
             </CardBody>
@@ -205,6 +250,20 @@ class ReceiveRequestView extends React.Component {
         </Grid>
         <Grid item xs={false} sm={false} md={2} >
         </Grid>
+        {this.state.history? 
+        <Grid item xs={12} sm={12} md={12}>
+          <Table
+            tableTitle={'LỊCH SỬ KHÁCH HÀNG GỌI'}
+            tableTitleSecondary={this.state.tableTitleSecondary}
+            tableHead={tableHead}
+            tableData={this.state.tableData}
+            onTableRowClick={this.onTableRowClick}
+          />
+        </Grid>
+        :
+        null
+        }
+        
       </Grid>
     );
   }
@@ -231,6 +290,7 @@ const mapDispatchToProps = dispatch => {
   return {
     doAddCustomerAndTrip: (customerInfo, note) => dispatch(addCustomerAndTrip(customerInfo, note)),
     doGetUserByToken: () => dispatch(getUserByToken()),
+    doGetCustomer: () => dispatch(getCustomer()),
   };
 };
 

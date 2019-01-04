@@ -195,3 +195,32 @@ exports.login = function(req,res) {
 			});
 	})
 };
+
+exports.getCustomer = function(req,res) {
+	var dif=req.body.dif;
+	userRepo.getCustomer(dif)
+	.then(rows=>{
+		if(rows.length>0)
+		{
+			res.statusCode = 201;
+			res.json({
+				returnCode:1,
+				message:"get susscess",
+				object:rows
+			});
+		}else{
+			res.json({
+				returnCode:0,
+				message:"not user to get",
+				object:rows	
+			});
+		}
+	})
+	.catch(err=>{
+		res.json({
+				returnCode:0,
+				message:"get error",
+				error:err	
+			});
+	});
+};

@@ -1,6 +1,7 @@
 import { SAVE_PROFILE } from './actionType';
 import {
-    loginApi, getUserByTokenApi, getUserByIdApi, getUserForTypeApi
+    loginApi, getUserByTokenApi, getUserByIdApi, getUserForTypeApi,
+    getCustomerApi, getAddressFromLatLngApi,
 } from '../../api/AppApi';
 var md5 = require('md5');
 export const login = (username, password) => {
@@ -93,4 +94,38 @@ export const saveProfile = (profile) => {
         type: SAVE_PROFILE,
         profile: profile
     };
+}
+
+export const getCustomer = () =>{
+    return (dispatch) => {
+        const promise = new Promise((resolve, reject) => {
+            var access_token = sessionStorage.getItem('access_token');
+            var refresh_token = sessionStorage.getItem('refresh_token');
+            getCustomerApi(access_token, refresh_token)
+                .then((responseJson) => {
+                    resolve(responseJson);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        })
+        return promise;
+    }
+}
+
+export const getAddressFromLatLng = (location) =>{
+    return (dispatch) => {
+        const promise = new Promise((resolve, reject) => {
+            var access_token = sessionStorage.getItem('access_token');
+            var refresh_token = sessionStorage.getItem('refresh_token');
+            getAddressFromLatLngApi(access_token, refresh_token, location)
+                .then((responseJson) => {
+                    resolve(responseJson);
+                })
+                .catch((error) => {
+                    console.log(error);
+                });
+        })
+        return promise;
+    }
 }

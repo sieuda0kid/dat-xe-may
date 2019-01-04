@@ -7,6 +7,7 @@ import { withStyles } from "@material-ui/core/styles";
 import { Button, CardContent } from "@material-ui/core";
 import {connect} from 'react-redux';
 import {updateTripLocation} from '../../store/actions/trip.js';
+import {getAddressFromLatLng} from '../../store/actions/user.js';
 import { socket } from "../../Utils/Distance.js";
 class CheckRequest extends Component {
   constructor(props) {
@@ -27,6 +28,17 @@ class CheckRequest extends Component {
     });
     console.log("lat: "+ this.state.lat);
     console.log("lng: "+ this.state.lng);
+    var location = {
+      lat: this.state.lat,
+      lng: this.state.lng,
+    }
+    this.props.doGetAddressFromLatLng(location)
+    .then(res=>{
+      this.setState({address: res.object.address});
+    })
+    .catch(error =>{
+      console.log(error);
+    })
   }
 
   handleClose = () => {
@@ -64,13 +76,6 @@ class CheckRequest extends Component {
     const { lat, lng } = this.state;
     const { classes, infoTrip } = this.props;
 
-    //Hiện thị chỉ đường
-    const triangleCoords = [
-        {lat: 10.7627345, lng: 106.6822347},
-        {lat: 10.7628653, lng: 106.6826189},
-        {lat: 10.7651904, lng: 106.6817614},
-        {lat: 10.7676356, lng: 106.6746287}
-      ];
     return (
       <Modal open={this.props.open} onClose={this.handleClose}>
         <div className={classes.paper}>
@@ -93,11 +98,6 @@ class CheckRequest extends Component {
                 style={styles.mapStyle}
                 onClick={this.mapClicked.bind(this)}
               >
-              <Polyline
-                path={triangleCoords}
-                strokeColor="#ff0000"
-                strokeOpacity={2}
-                strokeWeight={5} />
                 <Marker
                   onClick={() => {
                     alert(1);
@@ -148,6 +148,7 @@ const styles = theme => ({
 const mapDispatchToProps = dispatch => {
   return {
     doUpdateTripLocation: (trip) => dispatch(updateTripLocation(trip)),
+    doGetAddressFromLatLng: (location) => dispatch(getAddressFromLatLng(location)),
   };
 };
 export default GoogleApiWrapper({
