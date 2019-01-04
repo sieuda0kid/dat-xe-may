@@ -11,6 +11,7 @@ import { connect } from "react-redux";
 const tableHead = [
   { id: 'id', label: 'Mã nhân viên' },
   { id: 'fullname', label: 'Tên nhân viên' },
+  { id: 'phone', label: 'Diện thoại' },
 ];
 
 class ManageStaff extends React.Component {
@@ -40,8 +41,7 @@ class ManageStaff extends React.Component {
   }
 
   componentDidMount() {
-    if (this.state.userType === 3) {
-      this.props.doGetUserForType(1)
+      this.props.doGetUserForType(4)
         .then(resJson => {
           console.log('resJson', resJson);
           this.setState({
@@ -52,13 +52,11 @@ class ManageStaff extends React.Component {
         .catch(error => {
           console.log('doGetUserForType error', error);
         })
-    }
-
   }
 
   onTableRowClick = (item) => {
     this.setState({
-      userInfo: item
+      ex: item
     })
   }
 
@@ -66,7 +64,7 @@ class ManageStaff extends React.Component {
     // const { classes } = this.props;
     return (
       <GridContainer>
-        <GridItem xs={12} sm={12} md={8}>
+        <GridItem xs={12} sm={12} md={12}>
           <Table
             tableTitle={'DANH SÁCH NHÂN VIÊN'}
             tableTitleSecondary={this.state.tableTitleSecondary}
@@ -74,13 +72,6 @@ class ManageStaff extends React.Component {
             tableData={this.state.tableData}
             onTableRowClick={this.onTableRowClick}
           />
-        </GridItem>
-        <GridItem xs={12} sm={12} md={4}>
-          {this.state.userInfo != null
-            ?
-            <UserProfile userInfo={this.state.userInfo} />
-            :
-            null}
         </GridItem>
       </GridContainer>
     );

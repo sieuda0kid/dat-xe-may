@@ -31,7 +31,7 @@ exports.getDriverByRefreshToken = function(reToken) {
 exports.loadForType = function(difriend) {
 	if(difriend===0)
 	{
-		var sql = `select * from staff where isDelete = 0 and userType = 4`;
+		var sql = `select s.id, s.fullname, ds.statusName from staff s, drivestatus ds, driver dr where s.isDelete = 0 and s.userType = 4 and s.id = dr.staffId and dr.status = ds.id`;
 	    console.log(sql);
 	    return db.load(sql);
 	}else{
@@ -72,15 +72,6 @@ exports.delete = function(id) {
 	console.log(sql);
 	return db.write(sql);
 }
-
-
-
-exports.loadDriver = function(id) {
-	var sql = `delete from staff where id = ${id}`;
-	console.log(sql);
-	return db.write(sql);
-}
-
 
 
 exports.addDriver=function(driver)

@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import CheckRequest from "./CheckRequest.js";
 import { connect } from "react-redux";
 import Table from "../../components/Table/Table.jsx";
-import { socket } from './../../Utils/Distance.js';
 import { getTripNonLocation } from "../../store/actions/trip";
 import { getUserByToken } from '../../store/actions/user.js';
 import io from 'socket.io-client';

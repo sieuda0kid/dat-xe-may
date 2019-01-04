@@ -121,7 +121,6 @@ exports.getUsersForType = function(req,res) {
 
 exports.login = function(req,res) {
 	var c=req.body;
-
 	userRepo.login(c)
 	.then(rows => {
 		if(rows.length>0)

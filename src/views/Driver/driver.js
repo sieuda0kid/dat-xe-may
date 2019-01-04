@@ -7,7 +7,6 @@ import { withStyles } from '@material-ui/core/styles';
 import LocationOn from "@material-ui/icons/LocationOn";
 import DireactionCar from "@material-ui/icons/DirectionsCar";
 import LocalCarWash from "@material-ui/icons/LocalCarWash";
-import CustomerIcon from "@material-ui/icons/PersonPinCircle";
 import Exit from "@material-ui/icons/ExitToApp";
 import { Typography, Button } from "@material-ui/core";
 import TextField from '@material-ui/core/TextField';
@@ -41,6 +40,9 @@ class Driver extends Component {
       message: '',
       Trip: false,
       steps: [],
+      action: null,
+      BeginEndMessage: 'Bắt đầu chuyến đi',
+      BeginEndButton: true,
     };
     this.ExitClick = this.ExitClick.bind(this);
   }
@@ -67,6 +69,23 @@ class Driver extends Component {
     this.setState({ openCofirm: !this.state.openCofirm });
   }
 
+  BeginEndClick = () => {
+    if (this.state.BeginEndMessage == 'Bắt đầu chuyến đi') {
+      this.setState({
+        BeginEndMessage: 'Kết thúc chuyến đi',
+        BeginEndButton: false,
+      })
+      this.BeginTrip();
+    }
+    else if (this.state.BeginEndMessage == 'Kết thúc chuyến đi') {
+      this.setState({
+        BeginEndMessage: 'Bắt đầu chuyến đi',
+        Trip: false,
+      })
+      this.EndTrip();
+    }
+  }
+
   componentWillMount() {
     if (sessionStorage.getItem('access_token') === null) {
       this.props.history.push('/')
@@ -91,6 +110,8 @@ class Driver extends Component {
   }
 
   AcceptClick = () => {
+    if (this.state.action !== null)
+      clearTimeout(this.state.action);
     var driver_trip_info = this.state.user;
     driver_trip_info.trip = this.state.infoTrip;
     socket.emit("accept_trip", driver_trip_info);
@@ -109,7 +130,7 @@ class Driver extends Component {
   }
 
   BeginTrip = () => {
-    socket.emit("begin_trip",this.state.infoTrip);
+    socket.emit("begin_trip", this.state.infoTrip);
   }
 
   EndTrip = () => {
@@ -119,7 +140,7 @@ class Driver extends Component {
       steps: [],
       Trip: false,
     });
-    socket.emit("end_trip",this.state.infoTrip);
+    socket.emit("end_trip", this.state.infoTrip);
   }
 
 
@@ -146,7 +167,6 @@ class Driver extends Component {
               }
               arrayLocation.push(location);
             })
-            console.log(arrayLocation);
           })
           this.setState({
             steps: arrayLocation
@@ -175,6 +195,10 @@ class Driver extends Component {
             console.log("get info trip");
             this.setState({ openInfoTrip: true, infoTrip: resJson.object })
             this.child.handleClick();
+            this.state.action = setTimeout(() => {
+              socket.emit("cancel_trip", resJson.object);
+              this.child.handleClose();
+            }, 10000)
           }
         })
         .catch(error => {
@@ -371,22 +395,26 @@ class Driver extends Component {
 
         {this.state.Trip ?
           <div className={classes.Control3}>
-            <Button variant="contained" color="primary" className={classes.button3}
-            onClick={this.BeginTrip}
-            >
-              <Typography className={classes.name} gutterBottom>
-                Bắt dầu chuyến đi
-          </Typography>
-              <DireactionCar className={classes.rightIcon} />
-            </Button>
-            <Button variant="contained" color="primary" className={classes.button3}
-            onClick={this.EndTrip}
-            >
-              <Typography className={classes.name} gutterBottom>
-                Kết thúc chuyến đi
-          </Typography>
-              <LocalCarWash className={classes.rightIcon} />
-            </Button>
+            {this.state.BeginEndButton ?
+              <Button variant="contained" color="primary" className={classes.button3}
+                onClick={this.BeginEndClick}
+              >
+                <Typography className={classes.name} gutterBottom>
+                {this.state.BeginEndMessage}
+            </Typography>
+                <DireactionCar className={classes.rightIcon} />
+              </Button>
+              :
+              <Button variant="contained" color="primary" className={classes.button3}
+                onClick={this.BeginEndClick}
+              >
+                <Typography className={classes.name} gutterBottom>
+                  {this.state.BeginEndMessage}
+            </Typography>
+                <LocalCarWash className={classes.rightIcon} />
+              </Button>
+            }
+
           </div>
           :
           null}
@@ -422,7 +450,7 @@ class Driver extends Component {
             {this.state.infoTrip ?
               <Marker
                 name={"customer location"}
-                icon={{url:"https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png"}}
+                icon={{ url: "https://maps.gstatic.com/mapfiles/ms2/micons/blue-dot.png" }}
                 position={{
                   lat: this.state.infoTrip.tripLatitude,
                   lng: this.state.infoTrip.tripLongitude,

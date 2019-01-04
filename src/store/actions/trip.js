@@ -1,7 +1,7 @@
 import {
     getAllTripApi, getTripByDriverIdApi, addCustomerAndTripApi, getTripByStatusApi,
     getTripNonLocationApi, updateTripLocationApi, getLocationDriverApi,
-    getTripByTripIdApi,getArrayLocationApi
+    getTripByTripIdApi,getArrayLocationApi, getInfoTripApi
 } from "../../api/AppApi";
 
 export const getAllTrip = () => {
@@ -158,4 +158,21 @@ export const getArrayLocation = (startLocation, endLocation) => {
       });
       return promise;
     };
-  }
+}
+
+export const getInfoTrip = () =>{
+    return dispatch => {
+        const promise = new Promise((resolve, reject) => {
+          var access_token = sessionStorage.getItem("access_token");
+          var refresh_token = sessionStorage.getItem("refresh_token");
+          getInfoTripApi(access_token, refresh_token)
+            .then(responseJson => {
+              resolve(responseJson);
+            })
+            .catch(error => {
+              console.log(error);
+            });
+        });
+        return promise;
+      };
+}

@@ -40,6 +40,7 @@ var port = process.env.port || 8888;
 var server = app.listen(port, () => {
     console.log('WELCOME TO SERVICE OF TESLA !!!');
     console.log(`api running on port ${port}`);
+    console.log("So tai xe gui toi da: "+ process.env.N);
 })
 
 
@@ -47,7 +48,7 @@ var server = app.listen(port, () => {
 var arr = [];
 var arrDriver = [];
 var arrRequest = [];
-var sk;
+var arrLocation= [];
 var io = require('socket.io').listen(server);
 io.on('connection', function (socket) {
     socket.user = { id: 0 };
@@ -71,6 +72,15 @@ io.on('connection', function (socket) {
 
     socket.on("guidata", (data) => {
         guidata(data, data.id, data.title)
+    })
+
+    socket.on("get_number_N", (data) => {
+        console.log("get number N: "+data);
+        socket.emit("abc", process.env.N);
+    })
+
+    socket.on("change_number_n", (data)=>{
+        process.env["N"] = data;
     })
 
     socket.on("log_out", (data) => {
@@ -115,6 +125,11 @@ io.on('connection', function (socket) {
                             .catch(error => {
                                 console.log(error);
                             })
+                        arrLocation.map(e=>{
+                            if(e.user.id === data.id && e.id === socket.id)
+                                e.tripId = tripId;
+                        })
+
                         tripRepos.getTripByTripId(tripId)
                             .then(values => {
                                 guidataForType(values, "server_send_trip");
@@ -131,17 +146,34 @@ io.on('connection', function (socket) {
             .catch(err => {
                 console.log(err);
             })
+    })
 
-
-
-
+    socket.on("cancel_trip",(data)=>{
+        console.log("cancel trip");
+        var trip = {
+            id: data.id,
+            status: 7,
+        }
+        tripRepos.updateTripStatus(trip)
+            .then(r => {
+                console.log("Da huy bo chuyen di");
+                tripRepos.getTripByTripId(trip.id)
+                            .then(values => {
+                                guidataForType(values, "server_send_trip");
+                            })
+                            .catch(error => {
+                                console.log(error);
+                            })
+            })
+            .catch(error => {
+                console.log(error);
+            })
     })
 
     socket.on("update socket", data => {
         console.log("update socket");
         console.log("socket driver: " + socket.id);
         if (data.userType === 4) {
-            console.log("length: " + arrDriver.lengh);
             arrDriver.map((s, k) => {
                 if (s.user.id === data.id) {
                     var user = s.user;
@@ -154,6 +186,7 @@ io.on('connection', function (socket) {
                     socket.location = location;
                     arrDriver.splice(k, 1);
                     arrDriver.push(socket);
+                    arrLocation.push(socket);
                 }
             })
         }
@@ -164,17 +197,42 @@ io.on('connection', function (socket) {
     socket.on("location_driver", function (data) {
         console.log("location driver");
         if (data.userType === 4) {
-            arrDriver.map(socket => {
-                if (socket.user.id === data.id)
-                    socket.location = data.location;
+            arrDriver.map(e => {
+                if (e.user.id === data.id)
+                    e.location = data.location;
+            })
+
+            arrLocation.map(e=>{
+                if(e.id === socket.id)
+                    e.location = data.location;
             })
         }
-        arrDriver.map(s => {
-            console.log("driver: " + s.user.username)
-            console.log("driver lat: " + s.location.lat)
-            console.log("driver lng: " + s.location.lng)
-        })
+        
     });
+
+    socket.on("get_location_driver", (id) =>{
+        console.log("get loction driver");
+        arrLocation.map(e=>{
+            console.log("arrLocation: "+e.tripId + " socket: "+ e.id);
+        })
+        tripRepos.getTripByTripId(id)
+        .then(res=>{
+            if(res.length > 0)
+            {
+                arrLocation.map(d => {
+                    if(d.user.id === res[0].driverId && d.tripId === res[0].id)
+                    {
+                        console.log("receive location driver");
+                        socket.emit("receive_location_driver",d.location);
+                    }
+                })
+            }
+        })
+        .catch(error =>{
+            console.log(error);
+        })
+    })
+
     socket.on("driver_online", function (data) {
         console.log("driver change status online");
         if (data.userType === 4) {
@@ -207,22 +265,14 @@ io.on('connection', function (socket) {
         arrRequest.push(data);
         if (data.status != 5) {
             if (arrDriver.length > 0)
-                driver.sendRequestForDriver(data, arrDriver);
+                driver.sendRequestForDriver(data, arrDriver, process.env.N);
             else
                 console.log("chua co driver nao online");
         } else {
             console.log("Chuyen di nay da hoan tat !!");
         }
     });
-    //g
-    socket.on("receive-request", function (data) {
-        arrRequest.push(data);
-        driver.sendRequestForDriver10s(socket, data, arrDriver, arrRequest);
-    });
-    socket.on("refuse-request", function (data) {
-        arrRequest.push(data);
-        driver.driverRefuseRequest(socket, data, arrDriver, arrRequest);
-    });
+
     socket.on("send_refresh_token", function (data) {
         console.log("nhan duoc send_refresh_token " + data);
         if (data === null || data.length === 0) {
@@ -240,8 +290,10 @@ io.on('connection', function (socket) {
                                 if (s.user.id === socket.user.id)
                                     push = false;
                             })
-                            if (push)
+                            if (push){
+                                arrLocation.push(socket);
                                 arrDriver.push(socket);
+                            }
                             userRepos.getDriverByRefreshToken(data)
                                 .then(result => {
                                     if (result[0].status === 2) {
@@ -260,6 +312,17 @@ io.on('connection', function (socket) {
                 });
         }
     });
+
+    //g
+    socket.on("receive-request", function (data) {
+        arrRequest.push(data);
+        driver.sendRequestForDriver10s(socket, data, arrDriver, arrRequest);
+    });
+    socket.on("refuse-request", function (data) {
+        arrRequest.push(data);
+        driver.driverRefuseRequest(socket, data, arrDriver, arrRequest);
+    });
+    
 
 })
 app.get("/haha", (req, res) => {
@@ -287,7 +350,6 @@ var guidata = (data, id, title) => {
     });
 }
 var guidataForType = (data, title) => {
-    console.log("data tyep: " + data.tripLatitude);
     io.sockets.emit(title, data[0]);
 }
 
@@ -313,15 +375,6 @@ var getSocket = (data) => {
             if (socket.user.id === data.id)
                 kq = key;
 
-    });
-    return kq;
-}
-
-var getSocketDriver = (data) => {
-    var kq = -1;
-    arrDriver.map((socket, key) => {
-        if (socket.id === data.id)
-            kq = key;
     });
     return kq;
 }

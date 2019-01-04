@@ -2,10 +2,10 @@ import React from "react";
 import Table from "../../components/Table/Table.jsx";
 import GridContainer from "../../components/Grid/GridContainer";
 import GridItem from "../../components/Grid/GridItem";
-import UserProfile from "../../components/UserProfile/UserProfile";
 import { connect } from "react-redux";
 import { getUserForType, getUserByToken } from "../../store/actions/user";
-import { getTripByDriverId } from "../../store/actions/trip";
+import { getInfoTrip } from "../../store/actions/trip.js";
+import { socket } from "../../Utils/Distance.js";
 
 const tableDriverHead = [
   { id: 'id', label: 'Mã tài xế' },
@@ -14,9 +14,9 @@ const tableDriverHead = [
 ];
 
 const tableTripHead = [
-  { id: 'tripId', label: 'Mã chuyến đi' },
-  { id: 'cusomterName', label: 'Tên khách hàng' },
-  { id: 'address', label: 'Địa chỉ đón khách' },
+  { id: 'id', label: 'Mã chuyến đi' },
+  { id: 'customerName', label: 'Tên khách hàng' },
+  { id: 'customerAddress', label: 'Địa chỉ đón khách' },
   { id: 'statusName', label: 'Tình trạng chuyến đi' },
 ];
 
@@ -30,7 +30,6 @@ class ManageDriver extends React.Component {
       tableDriverData: [],
       tableTripData: [],
       userType: '',
-      userInfo: null,
     };
   }
 
@@ -49,21 +48,38 @@ class ManageDriver extends React.Component {
       })
   }
 
+  loadData_driver = () => {
+    this.props.doGetUserForType(0)
+      .then(resJson => {
+        this.setState({
+          tableDriverData: resJson.object,
+        })
+      })
+      .catch(error => {
+        console.log('Get User For Type error: ', error);
+      })
+  }
+  loadData_Trip = () =>{
+    this.props.doGetInfoTrip()
+    .then(res =>{
+      console.log("obecjt trip: "+res.object.status);
+      this.setState({
+        tableTripData: res.object,
+      })
+    })
+    .catch(error =>{
+      console.log('get info trip error: ', error);
+    })
+  }
   componentDidMount() {
-    if (this.state.userType === 3) {
-      this.props.doGetUserForType(0)
-        .then(resJson => {
-          console.log('resJson', resJson);
-          this.setState({
-            tableDriverData: resJson.object,
-            userInfo: resJson.object[0]
-          })
-          this.getTripByDriverId(resJson.object[0].id);
-        })
-        .catch(error => {
-          console.log('doGetUserForType error', error);
-        })
-    }
+    this.loadData_driver();
+    this.loadData_Trip();
+    socket.on("server_send_trip",(data)=>{
+      this.loadData_Trip();
+    })
+    socket.on("update_status_driver",(data)=>{
+      this.loadData_driver();
+    })
   }
 
   getTripByDriverId = (driverId) => {
@@ -78,7 +94,7 @@ class ManageDriver extends React.Component {
 
   onTableRowClick = (item) => {
     this.setState({
-      userInfo: item
+      ex: item
     })
   }
 
@@ -86,7 +102,7 @@ class ManageDriver extends React.Component {
     // const { classes } = this.props;
     return (
       <GridContainer>
-        <GridItem xs={12} sm={12} md={8}>
+        <GridItem xs={12} sm={12} md={12}>
           <Table
             tableTitle={'DANH SÁCH TÀI XẾ'}
             tableTitleSecondary={this.state.tableTitleSecondary}
@@ -95,19 +111,13 @@ class ManageDriver extends React.Component {
             onTableRowClick={this.onTableRowClick}
           />
         </GridItem>
-        <GridItem xs={12} sm={12} md={4}>
-          {this.state.userInfo != null
-            ?
-            <UserProfile userInfo={this.state.userInfo} />
-            :
-            null}
-        </GridItem>
         <GridItem xs={12} sm={12} md={12} >
           <Table
             tableTitle={'DANH SÁCH CHUYẾN ĐI'}
             tableTitleSecondary={this.state.tableTitleSecondary}
             tableHead={tableTripHead}
             tableData={this.state.tableTripData}
+            onTableRowClick={this.onTableRowClick}
           />
         </GridItem>
       </GridContainer>
@@ -118,7 +128,7 @@ class ManageDriver extends React.Component {
 const mapDispatchToProps = dispatch => {
   return {
     doGetUserForType: (dif) => dispatch(getUserForType(dif)),
-    doGetTripByDriverId: (driverId) => dispatch(getTripByDriverId(driverId)),
+    doGetInfoTrip: () => dispatch(getInfoTrip()),
     doGetUserByToken: () => dispatch(getUserByToken()),
   };
 };

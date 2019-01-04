@@ -135,3 +135,11 @@ export function getArrayLocationApi(access_token, refresh_token, startLocation, 
     }
     return fetchApi('map/getArrayLocation','POST', body);
 }
+
+export function getInfoTripApi(access_token, refresh_token) {
+    var body = {
+        access_token: access_token,
+        refresh_token: refresh_token,
+    }
+    return fetchApi('trip/getInfoTrip','POST', body);
+}

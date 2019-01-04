@@ -261,3 +261,31 @@ exports.getTripByTripId=function(req,res){
         });
     })
 }
+
+exports.getInfoTrip = function(req,res) {
+	tripRepo.getInfoTrip()
+	.then(rows=>{
+		if(rows.length>0)
+		{
+			res.statusCode = 201;
+			res.json({
+				returnCode:1,
+				message:"get susscess",
+				object:rows
+			});
+		}else{
+			res.json({
+				returnCode:0,
+				message:"not user to get",
+				object:rows	
+			});
+		}
+	})
+	.catch(err=>{
+		res.json({
+				returnCode:0,
+				message:"get error",
+				error:err	
+			});
+	});
+}

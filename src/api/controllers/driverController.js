@@ -46,14 +46,14 @@ var getListDistance = function (arrDriver, requestLocation) {
     });
 }
 
-exports.sendRequestForDriver = function (requestLocation, arrDriver) {
+exports.sendRequestForDriver = function (requestLocation, arrDriver, numberN) {
     arrDriver.map(skt => {
         console.log("arrDriver: "+ skt.id);
     })
     var arrDistance = [];
     var arrDistance = getListDistance(arrDriver, requestLocation);
     console.log("distance: "+ arrDistance[0].id);
-    var N = 10;
+    var N = numberN;
     var length = arrDistance.length;
     tripRepos.updateTripStatus(requestLocation.id, 3).then(data => { }).catch(err => { console.log(err) });
     if (length > 0) {
@@ -62,11 +62,15 @@ exports.sendRequestForDriver = function (requestLocation, arrDriver) {
         }
         console.log(length);
         for (var i = 0; i < length; i++) {
-            arrDistance[i].emit("server_send_request",requestLocation);
+            console.log("arr distance dirver offline: "+arrDistance[i].driver_status)
+            if(arrDistance[i].driver_status !== 3)
+                arrDistance[i].emit("server_send_request",requestLocation);
         }
     }
 }
 exports.endTrip = function (socket, data, arrDriver) {
+    console.log("end trip");
+    console.log("trip id: "+data.id)
     var trip ={
         id: data.id,
         status: 5,
@@ -77,7 +81,9 @@ exports.endTrip = function (socket, data, arrDriver) {
     arrDriver.map(e => {
         if (e.user.id === socket.user.id) { e.driver_status = 1; }
     })
-    userRepos.updateStatusDriver(socket.user.id, 1).then(data => { }).catch(err => { console.log(err) });
+    userRepos.updateStatusDriver(socket.user.id, 1).then(data => { 
+        app.guidataForType(data,"update_status_driver");
+    }).catch(err => { console.log(err) });
 }
 exports.beginTrip = function (socket, data,arrDriver) {
     console.log("begin trip");
@@ -92,7 +98,9 @@ exports.beginTrip = function (socket, data,arrDriver) {
     arrDriver.map(e => {
         if (e.user.id === socket.user.id) { e.driver_status = 2; }
     })
-    userRepos.updateStatusDriver(socket.user.id, 1).then(data => { }).catch(err => { console.log(err) });
+    userRepos.updateStatusDriver(socket.user.id, 1).then(data => { 
+        app.guidataForType(data,"update_status_driver");
+    }).catch(err => { console.log(err) });
 }
 
 exports.updateStatusRequestWithDriver = function (data, requestLocation, arrDriver) {
@@ -105,14 +113,21 @@ exports.driverOnline = function (socket, data, arrDriver) {
     arrDriver.map(e => {
         if (e.user.id === socket.user.id) { e.driver_status = 1; }
     })
-    userRepos.updateStatusDriver(socket.user.id, 1).then(data => { }).catch(err => { console.log(err) });
+    userRepos.updateStatusDriver(socket.user.id, 1).then(data => { 
+        app.guidataForType(data,"update_status_driver");
+    }).catch(err => { console.log(err) });
 }
 
 exports.driverOffline = function (socket, data, arrDriver) {
     arrDriver.map(e => {
-        if (e.user.id === socket.user.id) { e.driver_status = 3; }
+        if (e.user.id === socket.user.id) { 
+            e.driver_status = 3; 
+            console.log("socket driver offline: "+e.user.username);
+        }
     })
-    userRepos.updateStatusDriver(socket.user.id, 3).then(data => { }).catch(err => { console.log(err) });
+    userRepos.updateStatusDriver(socket.user.id, 3).then(data => { 
+        app.guidataForType(data,"update_status_driver");
+    }).catch(err => { console.log(err) });
 }
 
 exports.updateDoneLocation = function (data, socket) {

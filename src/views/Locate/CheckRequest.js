@@ -4,7 +4,7 @@ import Card from "../../components/Card/Card.jsx";
 import CardHeader from "../../components/Card/CardHeader.jsx";
 import Modal from "@material-ui/core/Modal";
 import { withStyles } from "@material-ui/core/styles";
-import { Button, CardContent, ClickAwayListener } from "@material-ui/core";
+import { Button, CardContent } from "@material-ui/core";
 import {connect} from 'react-redux';
 import {updateTripLocation} from '../../store/actions/trip.js';
 import { socket } from "../../Utils/Distance.js";

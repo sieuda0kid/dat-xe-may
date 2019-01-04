@@ -29,9 +29,12 @@ router.route('/updateTripLocation')
 .post(token.checkAccessToken, tripCtrl.updateTripLocation);
 
 router.route('/getlocationdriver')
-.post(token.checkAccessToken, map.getLatLong)
+.post(token.checkAccessToken, map.getLatLong);
 
 router.route('/getTripByTripId')
-.post(token.checkAccessToken,tripCtrl.getTripByTripId)
+.post(token.checkAccessToken,tripCtrl.getTripByTripId);
+
+router.route('/getInfoTrip')
+.post(token.checkAccessToken,tripCtrl.getInfoTrip);
 
 module.exports = router;
